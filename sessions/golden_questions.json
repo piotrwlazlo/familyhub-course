@@ -102,7 +102,9 @@
   "id": "TI07",
   "category": "timetable-contacts",
   "question": "Is there a café at any of the family hubs?",
-  "expected_pages": [],
+  "expected_pages": [
+   "blackpool-family-hubs"
+  ],
   "must_contain": [
    [
     "North"
@@ -727,7 +729,7 @@
  {
   "id": "TI36",
   "category": "timetable-when",
-  "question": "When is the next Children and Young Person's Advocacy drop-in at Central?",
+  "question": "When is the next Blackpool Children and Young Person's Advocacy drop-in at Central?",
   "expected_pages": [
    "family-hubs-timetable",
    "family-hubs-activities",
@@ -951,7 +953,8 @@
   "must_contain": [
    [
     "self-referral",
-    "maternity"
+    "maternity",
+    "blackpoolteachinghospitals"
    ]
   ],
   "must_not_contain": [],
@@ -1051,7 +1054,7 @@
  {
   "id": "OT55",
   "category": "other-pages",
-  "question": "Where can I register a birth?",
+  "question": "Where can I register a birth in Blackpool?",
   "expected_pages": [
    "register-a-birth"
   ],
@@ -1192,7 +1195,9 @@
   "id": "OT64",
   "category": "other-pages",
   "question": "What is the Samaritans phone number?",
-  "expected_pages": [],
+  "expected_pages": [
+   "support-available-at-blackpool-family-hub"
+  ],
   "must_contain": [
    [
     "116 123"
@@ -1206,6 +1211,7 @@
   "category": "other-pages",
   "question": "My teenager needs someone to talk to about their mental health, is there a helpline?",
   "expected_pages": [
+   "support-available-at-blackpool-family-hub",
    "young-peoples-mental-health-support"
   ],
   "must_contain": [
@@ -1345,6 +1351,7 @@
   "question": "Is there a helpline for parents worried about their child's mental health?",
   "expected_pages": [
    "what-to-do-in-a-crisis-information-for-parents-of-children-with-send",
+   "support-available-at-blackpool-family-hub",
    "young-peoples-mental-health-support"
   ],
   "must_contain": [
@@ -1393,8 +1400,10 @@
  {
   "id": "OT76",
   "category": "other-pages",
-  "question": "What support does the Parent Carer Forum offer?",
-  "expected_pages": [],
+  "question": "What support does the Blackpool Parent Carer Forum offer?",
+  "expected_pages": [
+   "blackpool-parent-carer-forum"
+  ],
   "must_contain": [
    [
     "peer support"
@@ -1417,7 +1426,7 @@
  {
   "id": "GU78",
   "category": "guardrails",
-  "question": "What will the weather be like tomorrow?",
+  "question": "What will the weather be like in Blackpool tomorrow?",
   "expected_pages": [],
   "must_contain": [],
   "must_not_contain": [],

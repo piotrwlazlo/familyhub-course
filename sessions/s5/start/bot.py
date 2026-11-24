@@ -15,7 +15,7 @@ from search import search
 
 client = OpenAI(base_url=config.MODEL_URL, api_key="not-needed")
 
-RULES = """You are the Family Hub information assistant of the council.
+RULES = """You are the Family Hub information assistant of Blackpool Council.
 Today is {today}.
 
 Rules:

@@ -23,7 +23,7 @@ class QuestionAnalysis(BaseModel):
     pass
 
 
-PROMPT = """You analyse questions sent to the Family Hub information assistant of the council.
+PROMPT = """You analyse questions sent to the Family Hub information assistant of Blackpool Council.
 Fill in the form about the user's last question. Do not answer the question.
 
 Reply with JSON that matches this schema (read the description of every field):

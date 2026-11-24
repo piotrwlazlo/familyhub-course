@@ -1,6 +1,6 @@
 """
 title: Family Hub assistant
-description: Answers questions from the Family Hub web pages, with sources.
+description: Answers questions from the Blackpool Family Hub web pages, with sources.
 version: 1.0
 """
 # Session 8: the Family Hub assistant inside Open WebUI, as a Pipe.
