@@ -1,40 +1,40 @@
-# Session 4: The assistant understands the question
+# Session 4: The assistant checks its answer
 
 *Work in VS Code, in your own copy: see `sessions/HOW_TO_WORK.md`.*
 
-**Goal:** before answering, the model fills in a short form about the question. Our code reads the form and decides: off topic and crisis questions get our fixed replies, the rest goes on to the answer.
+**Goal:** the council's rules are kept by plain Python code, not only by asking the model nicely. Crisis words always give the 999 reply. Every answer needs a source, no advice, no personal data and no made-up phone numbers.
 
 **You start from** the session 3 version (if yours does not pass its check, ask the instructor for the working version).
 
 **You get**
-- `config.py`: now also has our fixed replies `OFF_TOPIC_REPLY`, `CRISIS_REPLY`, `FALLBACK_REPLY` (copy the new part from `sessions/s4/start/config_addition.py` to the end of your `config.py`)
-- `sessions/s4/start/analysis.py`: copy it to the main folder: `cp sessions/s4/start/analysis.py .`
+- `sessions/s4/start/checks.py`: copy to the main folder. Ready: the phone number pattern `PHONE` and `digits()`
 
 **You build**
 
 | Where | What |
 |---|---|
-| `analysis.py`: class `QuestionAnalysis` | The form, with four fields: `on_topic` (yes/no), `is_crisis` (yes/no), `kind` (one of time, place, contact, description, other), `search_query` (the question rewritten as a full question) |
-| `analysis.py`: `analyse(question)` | Asks the model to fill in the form; returns the form, or `None` if the model's reply was not a valid form |
-| `bot.py`: `answer(question)` | Rename your old `answer` to `ask_model`. The new `answer` calls `analyse` first and returns a fixed reply for: no form, crisis, off topic. Otherwise it returns `ask_model(question)` |
+| `checks.py`: `CRISIS_WORDS` and `is_crisis(question)` | A list of words that mean someone is in danger now, and a check for them |
+| `checks.py`: `unknown_phone_numbers(answer, passages)` | Phone numbers in the answer that are not in any passage |
+| `checks.py`: `check_answer(result, passages)` | Returns our fallback reply if a rule is broken, otherwise `None` |
+| `bot.py`: the `Answer` form | Two more fields: `contains_advice` and `contains_personal_data` (yes/no, with descriptions) |
+| `bot.py`: `answer(question)` | `is_crisis` before anything else; `check_answer` after `write_answer` |
 
 ## Steps
-1. Write the class `QuestionAnalysis` with Pydantic. Give every field a `description`: the model reads them.
-2. Write `analyse`. Try it: `python analysis.py "What's the weather in London?"` Look at the form.
-3. Try 5 questions of your own. Is every field what you expect?
-4. Change `answer` in `bot.py`. Try an off topic question with `python bot.py ...`
-5. Run the check: `python sessions/s4/check.py`, then the old one: `python sessions/s3/check.py`
+1. Write your own list of crisis words. How would a frightened person really write it?
+2. Write `is_crisis` and `unknown_phone_numbers`. Try them in Python with your own sentences.
+3. Write `check_answer`, add the two fields to the `Answer` form, add both checks to `answer`.
+4. Try to break the assistant: ask for medical advice, give it your name and address, tell it to ignore its rules. Write down what gets through.
+5. Run the check: `python sessions/s4/check.py`, then the checks of sessions 1, 2 and 3.
 
 ## Prompts for the AI assistant
-- *"Write a Pydantic model QuestionAnalysis with the fields on_topic (bool), is_crisis (bool), kind (Literal of time, place, contact, description, other) and search_query (str). Give each field a Field(description=...) that explains it for a family hub assistant."*
-- *"Write a function analyse(question) that calls client.chat.completions.parse with model=config.MODEL, temperature=0, response_format=QuestionAnalysis and a system message PROMPT.format(schema=json.dumps(QuestionAnalysis.model_json_schema())). Return response.choices[0].message.parsed, or None if anything fails."*
+- *"Write a Python function is_crisis(question) that returns True if the lower-case question contains any word or phrase from the list CRISIS_WORDS."*
+- *"Write unknown_phone_numbers(answer, passages): find phone numbers in answer with the regex PHONE, and return those whose digits do not appear in the digits of all passage texts joined together. Use the function digits(text)."*
 
-**Done when** `python sessions/s4/check.py` prints `SESSION DONE` (12 of 12) and the session 3 check still passes.
+**Done when** `python sessions/s4/check.py` prints `SESSION DONE` (4 rules and 10 tricky questions), and the checks of sessions 1 to 3 still pass.
 
 ## Hints
-- The model gets a field wrong again and again: does it see the field descriptions? The schema must be in the prompt, not only in `response_format`.
-- `kind` is wrong: describe it with the question words (when, where, phone ...), and say that spelling mistakes are common.
-- Do not add more fields than these four. More fields = more mistakes.
+- A crisis word that is too short (like "hit") also blocks normal questions ("Is there a hit song session?"). Keep the phrases specific.
+- Rules must not block good answers: the last question in the check is a normal one on purpose.
 
-## Try at the end (the bridge to session 5)
-- Look at `search_query` for *"wen is the clever money drop in"*. It is a clean question now, but we still cannot search all 116 pages. That is next.
+## Try at the end
+- Which rule fired? Add a `print` in `check_answer` and ask the tricky questions again.

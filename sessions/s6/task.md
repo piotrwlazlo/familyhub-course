@@ -1,40 +1,38 @@
-# Session 6: The assistant checks its answer
+# Session 6: The assistant lives in Open WebUI
 
 *Work in VS Code, in your own copy: see `sessions/HOW_TO_WORK.md`.*
 
-**Goal:** the council's rules are kept by plain Python code, not only by asking the model nicely. Crisis words always give the 999 reply. Every answer needs a source, no advice, no personal data and no made-up phone numbers.
+**Goal:** staff use the assistant in the chat window they already know. It remembers the conversation, so follow-up questions like *"And where is it?"* work.
 
 **You start from** the session 5 version (if yours does not pass its check, ask the instructor for the working version).
 
 **You get**
-- `sessions/s6/start/checks.py`: copy to the main folder. Ready: the phone number pattern `PHONE` and `digits()`
+- `sessions/s6/start/familyhub_pipe.py`: copy to the main folder. Ready: the settings (`Valves`), `pipes`, `load_bot`, `as_text`
+- `sessions/s6/start/config_addition.py`: the notice shown above the first answer; paste into `config.py`
+- `deploy_openwebui.sh`: copies the code into the Open WebUI container and builds the search index there
 
 **You build**
 
 | Where | What |
 |---|---|
-| `checks.py`: `CRISIS_WORDS` and `is_crisis(question)` | A list of words that mean someone is in danger now, and a check for them |
-| `checks.py`: `unknown_phone_numbers(answer, passages)` | Phone numbers in the answer that are not in any passage |
-| `checks.py`: `check_answer(result, passages)` | Returns our fallback reply if a rule is broken, otherwise `None` |
-| `bot.py`: the `Answer` form | Two more fields: `contains_advice` and `contains_personal_data` (yes/no, with descriptions) |
-| `bot.py`: `answer(question)` | `is_crisis` before anything else; `check_answer` after `write_answer` |
+| `analysis.py`: `analyse(question, history)` | Also sends the last 6 messages, so the model can turn *"And where is it?"* into a full question |
+| `bot.py`: `write_answer(question, passages, history)` and `answer(question, history)` | Pass the history on to the model |
+| `familyhub_pipe.py`: `pipe(body)` | Takes the conversation from Open WebUI, calls `bot.answer`, adds the notice to the first answer |
 
 ## Steps
-1. Write your own list of crisis words. How would a frightened person really write it?
-2. Write `is_crisis` and `unknown_phone_numbers`. Try them in Python with your own sentences.
-3. Write `check_answer`, add the two fields to the `Answer` form, add both checks to `answer`.
-4. Try to break the assistant: ask for medical advice, give it your name and address, tell it to ignore its rules. Write down what gets through.
-5. Run the check: `python sessions/s6/check.py`, then the checks of sessions 3, 4 and 5.
+1. Add `history` to `analyse`, `write_answer` and `answer` (default `None`, so all older checks still work).
+2. Try a follow-up in Python: `bot.answer("And at South Family Hub?", [{"role": "user", "content": "When is Babbling Babies at North Family Hub?"}, {"role": "assistant", "content": "Thursday 10am to 11am."}])`
+3. Write `pipe`. Run the check: `python sessions/s6/check.py`
+4. Copy the code into Open WebUI: `bash deploy_openwebui.sh`
+5. In Open WebUI: Admin Panel > Functions > **+**, paste all of `familyhub_pipe.py`, save, switch it on. Pick **Family Hub assistant** as the model in a new chat.
+6. Have three conversations with follow-ups. Then ask colleagues to try it and write down what they think.
 
 ## Prompts for the AI assistant
-- *"Write a Python function is_crisis(question) that returns True if the lower-case question contains any word or phrase from the list CRISIS_WORDS."*
-- *"Write unknown_phone_numbers(answer, passages): find phone numbers in answer with the regex PHONE, and return those whose digits do not appear in the digits of all passage texts joined together. Use the function digits(text)."*
+- *"Complete pipe(self, body, __task__=None) for an Open WebUI Pipe: if __task__ is set return 'Family Hub question'. Build a list of {'role', 'content'} from body['messages'] with role user or assistant, using as_text for the content. The last one is the question, the rest is the history. Call self.load_bot().answer(question, history). If the history is empty, put bot.config.HELP_NOTICE and a blank line before the reply."*
 
-**Done when** `python sessions/s6/check.py` prints `SESSION DONE` (4 rules and 10 tricky questions), and the checks of sessions 3 to 5 still pass.
+**Done when** `python sessions/s6/check.py` prints `SESSION DONE` (3 conversations with follow-ups) and the assistant answers in Open WebUI.
 
 ## Hints
-- A crisis word that is too short (like "hit") also blocks normal questions ("Is there a hit song session?"). Keep the phrases specific.
-- Rules must not block good answers: the last question in the check is a normal one on purpose.
-
-## Try at the end
-- Which rule fired? Add a `print` in `check_answer` and ask the tricky questions again.
+- Inside the container, the model is not at `localhost`: the Pipe uses `host.docker.internal` (see `Valves`).
+- You changed the code? Run `bash deploy_openwebui.sh` again, then switch the function off and on in Open WebUI.
+- Run `python tests/run_tests.py` one more time: the score must not drop.

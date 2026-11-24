@@ -3,7 +3,7 @@ title: Family Hub assistant
 description: Answers questions from the Blackpool Family Hub web pages, with sources.
 version: 1.0
 """
-# Session 8: the Family Hub assistant inside Open WebUI, as a Pipe.
+# Session 6: the Family Hub assistant inside Open WebUI, as a Pipe.
 # Paste this file in Open WebUI: Admin Panel > Functions > + (New Function), save, and switch it on.
 # The code itself (bot.py, search.py ...) lives in APP_DIR inside the Open WebUI container.
 import sys

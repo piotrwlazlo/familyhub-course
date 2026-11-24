@@ -1,49 +1,45 @@
-# Session 5: The assistant finds the right passage
+# Session 5: The assistant passes the test
 
 *Work in VS Code, in your own copy: see `sessions/HOW_TO_WORK.md`.*
 
-**Goal:** the assistant searches all 116 pages, reads only the 5 best passages and shows links to its sources. Search = Chroma (finds passages by meaning) + keyword search (BM25), merged into one list.
+**Goal:** every change is checked with numbers, not by feel. You write golden questions that parents really ask, a program asks them all and writes a report with a score.
 
 **You start from** the session 4 version (if yours does not pass its check, ask the instructor for the working version).
 
 **You get**
-- `sessions/s5/start/config_addition.py`: four new settings (`INDEX_DIR`, `CHUNK_CHARS`, `TOP_K`, `WHOLE_PAGES`); paste them into `config.py`
-- `sessions/s5/start/search.py`: copy to the main folder. Ready: `read_page`, `words`, `fuse`. You write the rest
-- `sessions/s5/start/bot.py`: the new `bot.py` (copy over yours). Ready: the `Answer` form and `build_prompt`. You write the rest
+- `sessions/s5/start/golden.json`: 89 golden questions we wrote. Copy to `tests/golden.json`
+- `sessions/s5/start/run_tests.py`: copy to `tests/`. Ready: `norm`, `check` and `report`. You write `run_one` and `main`
 
 **You build**
 
-| Where | Function | What it does |
-|---|---|---|
-| `search.py` | `make_chunks(text)` | Cuts a page into passages of at most 1000 characters, a new one at every heading |
-| `search.py` | `build_index()` | Puts every passage of every page into Chroma, with its page title and web address |
-| `search.py` | `search(query, k)` | 30 best by meaning + 30 best by keywords, merged with `fuse`, the best `k` returned. A passage of the timetable (`WHOLE_PAGES`) becomes the whole timetable page |
-| `bot.py` | `write_answer(question, passages)` | The model reads the passages and fills in the `Answer` form |
-| `bot.py` | `source_links(passages, used)` | The "Sources" list: links to the pages the model used, each page once |
-| `bot.py` | `answer(question)` | analyse → search → write_answer → answer + sources |
+| Where | What |
+|---|---|
+| `tests/golden.json` | At least 10 questions of your own: `"category": "team"`, ids `T01`, `T02` ... Each with what the answer must contain |
+| `tests/run_tests.py`: `run_one(item)` | Asks one question, checks the reply, measures the time |
+| `tests/run_tests.py`: `main()` | Runs all questions (4 at a time), saves `tests/results.json` and `tests/report.md`, prints the score |
+
+A golden question looks like this:
+```json
+{"id": "T01", "category": "team", "question": "Do I have to book Chatting with Children?",
+ "expect": "answer", "must_contain": [["no booking", "just pop along"]], "must_not_contain": []}
+```
+`must_contain` is a list of groups: one phrase from every group must be in the answer. `expect` is one of `answer`, `no_answer`, `off_topic`, `safe`.
 
 ## Steps
-1. Write `make_chunks`. Cut one page and print the passages: do they make sense on their own?
-2. Write `build_index`, then run it once: `python search.py --build` (the first time it downloads a small model, about 80 MB).
-3. Write `search`. Try `python search.py "When is Neuro Ninjas?"` and read the passages: is the answer in one of them?
-4. Compare: search only by meaning, only by keywords, then both. Which one finds more?
-5. Write `write_answer`, `source_links` and the new `answer`. Try `python bot.py "When is Neuro Ninjas?"`
-6. Run the check: `python sessions/s5/check.py`, then the checks of sessions 3 and 4.
+1. Each person writes 3 questions that parents ask at the front desk. Find the right answer in `knowledge/` yourself first.
+2. Write `run_one` and `main`. Run `python tests/run_tests.py T01 T02` (only your questions) until it works.
+3. Run all questions: `python tests/run_tests.py`. Open `tests/report.md`.
+4. Read every failure. Is the assistant wrong, or is the test wrong? Write it down.
+5. Change one thing and run all questions again: `TOP_K` 3 or 8, `CHUNK_CHARS` 500 or 1500 (then `python search.py --build`), or one rule in the prompt. Did the score go up or down? We keep the best change.
+6. Run the check: `python sessions/s5/check.py`
 
 ## Prompts for the AI assistant
-- *"Write a Python function make_chunks(text, max_chars) that splits a markdown text at blank lines into blocks and joins blocks into passages of at most max_chars characters. Start a new passage at every block that starts with '#'. If one block is longer than max_chars, cut it at line ends."*
-- *"Write build_index() with chromadb.PersistentClient(path=str(config.INDEX_DIR)): delete the collection 'familyhub' if it exists, create it with metadata {'hnsw:space': 'cosine'}, and for each .md file in config.KNOWLEDGE use read_page and make_chunks and add the passages with ids '<page>#<n>', documents '<title>\n<passage>' and metadatas page, title, url."*
+- *"Write run_one(item) that calls bot.answer(item['question']) inside try/except, measures the time with time.time(), calls check(item, reply) and returns {**item, 'answer': reply, 'seconds': ..., **check(...)}. Print one line: id, PASS or FAIL, seconds, the question."*
+- *"Write main() that reads tests/golden.json, keeps only the ids in sys.argv[1:] if any are given, runs run_one for all items with ThreadPoolExecutor(max_workers=4), writes results.json and report.md next to this file, and prints the report up to the line '## Failures'."*
 
-**Done when** `python sessions/s5/check.py` prints `SESSION DONE`: the right page is found for at least 90% of the golden questions, and 3 answers come with their source links.
+**Done when** `python sessions/s5/check.py` prints `SESSION DONE`: at least 10 team questions, and a score of at least 80%.
 
 ## Hints
-- `build_index` is slow: it runs once, not at every question.
-- Search finds nothing useful: print the passages. Are they cut in the middle of a sentence? Is the page title in each one?
-- Keyword search finds "the", "what", "is" everywhere: that is why `words()` leaves out small words.
-
-## Why the whole timetable?
-The timetable is one big table. Cut into pieces, only the first piece has the column names, and the model mixes up days and places. The whole table is about 3,500 tokens: small enough to give in one piece. In our test this took the score from 87% to 90%.
-
-## Try at the end
-- *"How do I contact CAFCASS?"* The page spells it "CAFCAS". What does each search method find? Why?
-- *"Who is SEND Saturday for?"* Where is the answer, and why is it hard to find?
+- A failure is not always the assistant's fault. Our own question OT77 expects "no answer", but one page does say something about school transport. Fix the test when the test is wrong.
+- Questions with "next" depend on the date. The test always uses 22 November 2026, the day after the knowledge was saved.
+- The full run takes 2 to 3 minutes. While you work on one problem, run only that question.

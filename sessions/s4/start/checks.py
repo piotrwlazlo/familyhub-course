@@ -1,4 +1,4 @@
-"""Session 6: our own rules check every answer before anyone sees it.
+"""Session 4: our own rules check every answer before anyone sees it.
 
 The model is asked to follow the rules, but these checks are plain Python: they always work the same way.
 """

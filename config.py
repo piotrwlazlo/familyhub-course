@@ -9,7 +9,7 @@ MODEL = "gemma-4-26b"
 HERE = Path(__file__).parent
 KNOWLEDGE = HERE / "knowledge"
 
-# Session 3: the small set of files that fits into one prompt
+# Session 1: the small set of files that fits into one prompt
 SMALL_KNOWLEDGE = [
     "hub-contacts.md",
     "family-hubs-timetable.md",

@@ -2,7 +2,7 @@
 
 Everyone works with their own Linux account and their own copy of the code on the GB10, in VS Code (connected to the GB10 the same way as in the earlier labs). Nobody works in a shared folder, so nobody can break someone else's code.
 
-## Your own folder (once, before session 3)
+## Your own folder (once, before session 1)
 1. Get your own copy of this repository in your home folder, for example `~/familyhub` (your instructor tells you how).
 2. In VS Code: File > Open Folder > `~/familyhub`
 3. Open the terminal (Terminal > New Terminal) and create the Python environment:
@@ -11,7 +11,7 @@ Everyone works with their own Linux account and their own copy of the code on th
 
 ## Every session
 - Write the code in the `.py` files (`bot.py`, `search.py` ...). The task card says which file and which function.
-- Run everything in the VS Code terminal, from your folder, for example `python bot.py "When is Babbling Babies?"` and `python sessions/s3/check.py`
+- Run everything in the VS Code terminal, from your folder, for example `python bot.py "When is Babbling Babies?"` and `python sessions/s1/check.py`
 - Want to try things step by step? Make a notebook `scratch.ipynb` (Jupyter extension), pick the `.venv` kernel and use:
   ```python
   import importlib, bot

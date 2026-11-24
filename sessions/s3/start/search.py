@@ -1,4 +1,4 @@
-"""Session 5: find the right passages in all our documents.
+"""Session 3: find the right passages in all our documents.
 
 Build the index once:   python search.py --build
 Try a search:           python search.py "When is Neuro Ninjas?"

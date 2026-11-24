@@ -1,4 +1,4 @@
-# Session 5: the search index (Chroma, on disk) and how we cut and search the pages
+# Session 3: the search index (Chroma, on disk) and how we cut and search the pages
 INDEX_DIR = HERE / "index"
 CHUNK_CHARS = 1000     # a passage is at most this many characters
 TOP_K = 5              # how many passages the model reads for one answer

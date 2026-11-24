@@ -1,4 +1,4 @@
-"""Session 7: ask all golden questions and write a report.
+"""Session 5: ask all golden questions and write a report.
 
 Run:    python tests/run_tests.py            (all questions, 4 at a time)
         python tests/run_tests.py TI08 OT51  (only these ids)

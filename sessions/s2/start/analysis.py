@@ -1,4 +1,4 @@
-"""Session 4: before answering, the model fills in a short form about the question.
+"""Session 2: before answering, the model fills in a short form about the question.
 
 Try it:  python analysis.py "What's the weather in London?"
 """
