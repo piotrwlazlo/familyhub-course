@@ -2,8 +2,6 @@
 index/
 __pycache__/
 *.pyc
-knowledge/*
-!knowledge/README.md
 tests/report.md
 tests/results.json
 app.log

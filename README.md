@@ -16,7 +16,7 @@ In these labs you build the Family Hub assistant step by step: a chat assistant 
 | Path | What |
 |---|---|
 | `config.py` | Settings: model address, files, later search settings and fixed replies |
-| `knowledge/` | The web pages as text files and the timetable. Not in this repository: your instructor provides it |
+| `knowledge/` | The council web pages as text files (116), the timetable export and the pages made from it, hub contacts |
 | `sessions/sN/task.md` | The task card for session N: what to build, step by step |
 | `sessions/sN/start/` | Starter files for session N |
 | `sessions/sN/check.py` | Run it to see if you are done: it prints `SESSION DONE` |
@@ -26,8 +26,7 @@ In these labs you build the Family Hub assistant step by step: a chat assistant 
 ## Before session 3
 
 1. Get your own copy of this repository and open the folder in VS Code (see `sessions/HOW_TO_WORK.md`).
-2. Put the `knowledge` folder from your instructor into the repository folder.
-3. Create the Python environment: `python3 -m venv .venv && .venv/bin/pip install openai pydantic chromadb rank_bm25 ipykernel`
-4. Check `MODEL_URL` and `MODEL` in `config.py`: they point to the AI model on your GB10.
+2. Create the Python environment: `python3 -m venv .venv && .venv/bin/pip install openai pydantic chromadb rank_bm25 ipykernel`
+3. Check `MODEL_URL` and `MODEL` in `config.py`: they point to the AI model on your GB10.
 
 Then open `sessions/s3/task.md` and start.

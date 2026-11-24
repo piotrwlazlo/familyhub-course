@@ -4,11 +4,10 @@ Everyone works with their own Linux account and their own copy of the code on th
 
 ## Your own folder (once, before session 3)
 1. Get your own copy of this repository in your home folder, for example `~/familyhub` (your instructor tells you how).
-2. Put the `knowledge` folder from your instructor into `~/familyhub`.
-3. In VS Code: File > Open Folder > `~/familyhub`
-4. Open the terminal (Terminal > New Terminal) and create the Python environment:
+2. In VS Code: File > Open Folder > `~/familyhub`
+3. Open the terminal (Terminal > New Terminal) and create the Python environment:
    `python3 -m venv .venv && .venv/bin/pip install openai pydantic chromadb rank_bm25 ipykernel`
-5. Pick the Python interpreter: `Ctrl+Shift+P` > *Python: Select Interpreter* > `.venv/bin/python`
+4. Pick the Python interpreter: `Ctrl+Shift+P` > *Python: Select Interpreter* > `.venv/bin/python`
 
 ## Every session
 - Write the code in the `.py` files (`bot.py`, `search.py` ...). The task card says which file and which function.
