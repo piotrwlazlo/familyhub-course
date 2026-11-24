@@ -1,6 +1,6 @@
-"""Family Hub assistant: a question goes in, an answer comes out.
+"""Answer pipeline: question analysis, retrieval, answer generation and validation.
 
-Try it:  python bot.py "What is the phone number for North Family Hub?"
+Usage: python bot.py "What is the phone number for North Family Hub?"
 """
 import json
 import sys
@@ -50,15 +50,15 @@ def today() -> date:
 
 
 def build_prompt(passages: list[dict], day: date) -> str:
-    """Our rules, today's date, the answer form and the numbered passages."""
+    """Build the system prompt: rules, current date, answer schema and numbered passages."""
     numbered = "\n\n".join(f"[{i}] {p['text']}" for i, p in enumerate(passages, start=1))
     return RULES.format(today=f"{day:%A %d %B %Y}", schema=json.dumps(Answer.model_json_schema()), passages=numbered)
 
 
-def write_answer(question: str, passages: list[dict]) -> Answer | None:
-    """The model reads the passages and fills in the Answer form."""
-    messages = [{"role": "system", "content": build_prompt(passages, today())},
-                {"role": "user", "content": question}]
+def write_answer(question: str, passages: list[dict], history: list[dict] | None = None) -> Answer | None:
+    """Generate a structured answer from the passages and recent conversation. Returns None on failure."""
+    messages = ([{"role": "system", "content": build_prompt(passages, today())}]
+                + (history or [])[-6:] + [{"role": "user", "content": question}])
     try:
         response = client.chat.completions.parse(model=config.MODEL, messages=messages,
                                                  response_format=Answer, temperature=0)
@@ -68,7 +68,7 @@ def write_answer(question: str, passages: list[dict]) -> Answer | None:
 
 
 def source_links(passages: list[dict], used: list[int]) -> str:
-    """Links to the pages of the passages the model used, each page once."""
+    """Format a deduplicated list of source links for the passages referenced by the answer."""
     links = {}
     for number in used:
         if 1 <= number <= len(passages):
@@ -77,11 +77,14 @@ def source_links(passages: list[dict], used: list[int]) -> str:
     return "\n\n**Sources:**\n" + "\n".join(links.values()) if links else ""
 
 
-def answer(question: str) -> str:
-    """Understand the question, find passages, write the answer, check it, add the sources."""
-    if is_crisis(question):                     # session 4: our own rule first, before any model call
+def answer(question: str, history: list[dict] | None = None) -> str:
+    """Return the reply for a question.
+
+    history: previous messages as [{"role": "user" | "assistant", "content": str}, ...]
+    """
+    if is_crisis(question):                     # keyword check runs before any model call
         return config.CRISIS_REPLY
-    form = analyse(question)
+    form = analyse(question, history)
     if form is None:
         return config.FALLBACK_REPLY
     if form.is_crisis:
@@ -89,10 +92,10 @@ def answer(question: str) -> str:
     if not form.on_topic:
         return config.OFF_TOPIC_REPLY
     passages = search(form.search_query)
-    result = write_answer(question, passages)
+    result = write_answer(question, passages, history)
     if result is None:
         return config.FALLBACK_REPLY
-    problem = check_answer(result, passages)    # session 4: our rules check the answer
+    problem = check_answer(result, passages)
     if problem:
         return problem
     return result.answer + source_links(passages, result.sources)

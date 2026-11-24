@@ -1,6 +1,6 @@
-"""Session 2: before answering, the model fills in a short form about the question.
+"""Question analysis: classifies a question and rewrites it as a standalone search query.
 
-Try it:  python analysis.py "What's the weather in London?"
+Usage: python analysis.py "What's the weather in London?"
 """
 import json
 import sys
@@ -33,15 +33,17 @@ class QuestionAnalysis(BaseModel):
 
 PROMPT = """You analyse questions sent to the Family Hub information assistant of Blackpool Council.
 Fill in the form about the user's last question. Do not answer the question.
+The earlier messages of the conversation (if any) help you understand short follow-up questions
+like "and where is it?": then write the full question in search_query.
 
 Reply with JSON that matches this schema (read the description of every field):
 {schema}"""
 
 
-def analyse(question: str) -> QuestionAnalysis | None:
-    """Ask the model to fill in the form. Returns None if the model did not return a valid form."""
+def analyse(question: str, history: list[dict] | None = None) -> QuestionAnalysis | None:
+    """Classify the question using structured output. Returns None if the response cannot be parsed."""
     system = PROMPT.format(schema=json.dumps(QuestionAnalysis.model_json_schema()))
-    messages = [{"role": "system", "content": system}, {"role": "user", "content": question}]
+    messages = [{"role": "system", "content": system}] + (history or [])[-6:] + [{"role": "user", "content": question}]
     try:
         response = client.chat.completions.parse(model=config.MODEL, messages=messages,
                                                  response_format=QuestionAnalysis, temperature=0)
