@@ -40,4 +40,6 @@
 
 ## Try at the end (the bridge to the next sessions)
 - Ask *"What will the weather be like tomorrow?"* What happens?
-- Change `SMALL_KNOWLEDGE` to all 116 files: `[p.name for p in config.KNOWLEDGE.glob("*.md")]`. What happens, and why?
+- Try to give the model all 116 pages at once. In `config.py`, replace the whole `SMALL_KNOWLEDGE = [ ... ]` list (all its lines) with one line:
+  `SMALL_KNOWLEDGE = [p.name for p in KNOWLEDGE.glob("*.md")]`
+  Then run `python bot.py "What is the phone number for North Family Hub?"`. You get an error from the model: the text is far too long (about 400,000 tokens, the model takes 32,000). That is why the next sessions search for the right passages instead of sending everything. Afterwards put the old list back (`git checkout config.py`).
