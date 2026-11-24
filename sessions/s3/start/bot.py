@@ -59,11 +59,7 @@ def write_answer(question: str, passages: list[dict]) -> Answer | None:
 
 def source_links(passages: list[dict], used: list[int]) -> str:
     """Links to the pages of the passages the model used (numbers start at 1), each page once.
-    Return "
-
-**Sources:**
-- [Title](url)
-- ..." or "" if there are none."""
+    Return "\n\n**Sources:**\n- [Title](url)\n- ..." or "" if there are none."""
     # TODO
     return ""
 
