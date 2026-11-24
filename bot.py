@@ -8,6 +8,7 @@ from datetime import date
 from openai import OpenAI
 
 import config
+from analysis import analyse
 
 client = OpenAI(base_url=config.MODEL_URL, api_key="not-needed")
 
@@ -48,7 +49,7 @@ def build_prompt(docs: list[dict], day: date) -> str:
 DOCS = load_knowledge(config.SMALL_KNOWLEDGE)
 
 
-def answer(question: str) -> str:
+def ask_model(question: str) -> str:
     """Ask the model one question, with all our documents in the prompt."""
     messages = [
         {"role": "system", "content": build_prompt(DOCS, today())},
@@ -56,6 +57,18 @@ def answer(question: str) -> str:
     ]
     response = client.chat.completions.create(model=config.MODEL, messages=messages, temperature=0)
     return response.choices[0].message.content
+
+
+def answer(question: str) -> str:
+    """Session 2: first understand the question, then decide what to do."""
+    form = analyse(question)
+    if form is None:
+        return config.FALLBACK_REPLY
+    if form.is_crisis:
+        return config.CRISIS_REPLY
+    if not form.on_topic:
+        return config.OFF_TOPIC_REPLY
+    return ask_model(question)
 
 
 if __name__ == "__main__":
