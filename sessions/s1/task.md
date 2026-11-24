@@ -18,6 +18,7 @@
 | `answer(question)` | Sends the instruction text and the question to the model and returns its reply |
 
 ## Steps
+0. In the VS Code terminal, in your main folder (the one with `config.py`), copy the starter file: `cp sessions/s1/start/bot.py .` From now on open and run `bot.py` in the main folder, not the one in `sessions/s1/start`.
 1. Open two or three files in `knowledge/` and read them. What is inside? What would a parent ask?
 2. Write `load_knowledge`. Test it: `python -c "import bot; print(len(bot.DOCS))"` should print 11.
 3. Write `build_prompt`. Print the result for one file and read it: is the date there? Are the rules there?
@@ -32,7 +33,8 @@
 **Done when** `python sessions/s1/check.py` prints `SESSION DONE` (6 of 6).
 
 ## Hints
-- Error `FileNotFoundError`: run Python from the `familyhub-app` folder.
+- Error `No module named 'config'`: Python is not running in your main folder, or you are running `sessions/s1/start/bot.py` instead of the copy in the main folder. In the terminal: `cd` to the folder with `config.py`, then run the command again.
+- Error `FileNotFoundError`: run Python from your main folder (the one with `config.py`).
 - Strange characters: read files with `encoding="utf-8"`.
 - The answer mentions a session that is already over: is the date in the prompt?
 
