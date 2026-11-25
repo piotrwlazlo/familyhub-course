@@ -10,7 +10,7 @@ mkdir -p "$TARGET"
 cp "$HERE/familyhub-app.bundle" "$HERE/get_my_copy.sh" "$TARGET/"
 if [ ! -x "$TARGET/venv/bin/python" ]; then
   python3 -m venv "$TARGET/venv"
-  "$TARGET/venv/bin/pip" install -q openai pydantic chromadb rank_bm25 ipykernel loguru fastapi uvicorn httpx
+  "$TARGET/venv/bin/pip" install -q openai pydantic chromadb rank_bm25 ipykernel loguru fastapi uvicorn httpx pytest
 fi
 chmod -R a+rX,go-w "$TARGET"
 echo "Done. Each participant now runs, as themselves:   bash $TARGET/get_my_copy.sh"

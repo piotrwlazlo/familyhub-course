@@ -66,6 +66,8 @@ def models():
 def chat(request: ChatRequest):
     messages = [{"role": m["role"], "content": as_text(m.get("content"))}
                 for m in request.messages if m.get("role") in ("user", "assistant")]
+    if not messages:
+        return JSONResponse({"error": "the request has no user or assistant message"}, status_code=400)
     question, history = messages[-1]["content"], messages[:-1]
     if question.lstrip().startswith("### Task:"):          # Open WebUI background task (title, tags)
         text = "Family Hub question"

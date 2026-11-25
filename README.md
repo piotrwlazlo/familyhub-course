@@ -1,6 +1,6 @@
 # Family Hub assistant: course repository
 
-The team builds the Family Hub assistant step by step, in sessions 1 to 7. Every session has a task card, starter files and a check. The tags `gold-s1` ... `gold-s7` are the working version after each session.
+The team builds the Family Hub assistant step by step, in sessions 1 to 8. Every session has a task card, starter files and a check. The tags `gold-s1` ... `gold-s8` are the working version after each session.
 
 ## Folders
 
@@ -15,6 +15,7 @@ The team builds the Family Hub assistant step by step, in sessions 1 to 7. Every
 | `tests/` | Session 5: golden questions and the test run with its report |
 | `familyhub_pipe.py`, `deploy_openwebui.sh` | Session 6: the assistant inside Open WebUI |
 | `logs.py` | Session 7: logging setup: terminal, logs/familyhub.log, logs/reasoning.log |
+| `tests/test_units.py`, `tests/smoke_test.py` | Session 8: unit tests (pytest, no model) and a smoke test for the running service |
 | `app.py`, `run_app.sh` | For the instructor: the finished assistant as a server on port 8100 (`bash run_app.sh`), for Open WebUI as a connection |
 | `sessions/sN/` | `task.md` (task card), `start/` (starter files), `check.py` (done when it says SESSION DONE) |
 | `sessions/golden_questions.json` | Our 91 golden questions (used by the session 3 check) |
@@ -36,7 +37,7 @@ Session 6 (`deploy_openwebui.sh`) needs rights to run `docker`: one person with 
 ## Using the golden state
 
 ```bash
-git tag                          # gold-s1 ... gold-s7
+git tag                          # gold-s1 ... gold-s8
 git checkout gold-s3             # the whole working version after session 3
 git checkout gold-s3 -- search.py   # only one file from it
 python sessions/s3/check.py      # every session has its own check
@@ -49,8 +50,9 @@ Each session starts from the golden state of the session before, so everyone sta
 |---|---|
 | Session 1 | 6/6 |
 | Session 2 | 12/12 |
-| Session 1 | search finds the right page for 74/77 golden questions (96%), 3/3 answers |
-| Session 2 | 4 rules + 10/10 tricky questions |
-| Session 3 | 90 to 91% on 99 golden questions (the first version of the assistant: 81%) |
-| Session 4 | 7/7, and tested inside the Open WebUI container |
+| Session 3 | search finds the right page for 74/77 golden questions (96%), 3/3 answers |
+| Session 4 | 4 rules + 10/10 tricky questions |
+| Session 5 | 90 to 91% on 99 golden questions (the first version of the assistant: 81%) |
+| Session 6 | 7/7, and tested inside the Open WebUI container |
 | Session 7 | 10/10 |
+| Session 8 | 17 unit tests, 6/6 broken versions caught, smoke test 4/4, empty message list gives 400 |
