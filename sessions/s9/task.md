@@ -16,7 +16,7 @@
 
 **You start from** the session 8 version (if yours does not pass its check, ask the instructor for the working version).
 
-**Before you start (once, the GB10 admin):** `sudo /srv/familyhub-course/venv/bin/pip install trafilatura`
+**Before you start (once, the instructor):** install trafilatura into the Python environment the team uses: `pip install trafilatura`
 
 **You get**
 - `sessions/s9/start/sources.py`: copy to the main folder. Ready: `download_text(url)`, `download_timetable()`, `save_timetable(events, folder)`, `count_sessions(text)`, `build_index(knowledge, index)`, `search_score(knowledge, index)`

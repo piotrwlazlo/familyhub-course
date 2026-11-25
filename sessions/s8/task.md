@@ -6,7 +6,7 @@
 
 **You start from** the session 7 version (if yours does not pass its check, ask the instructor for the working version). The hunt needs the working versions of `search.py`, `checks.py` and `app.py`.
 
-**Before you start (once, the GB10 admin):** `sudo /srv/familyhub-course/venv/bin/pip install pytest`
+**Before you start (once, the instructor):** install pytest into the Python environment the team uses: `pip install pytest`
 
 **You get**
 - `sessions/s8/start/test_units.py`: copy to `tests/`. It has one example test.

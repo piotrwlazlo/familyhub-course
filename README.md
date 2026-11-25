@@ -24,7 +24,21 @@ In these labs you build the Family Hub assistant step by step: a chat assistant 
 | `sessions/sN/start/` | Starter files for session N |
 | `sessions/sN/check.py` | Run it to see if you are done: it prints `SESSION DONE` |
 | `sessions/golden_questions.json` | Golden questions with the facts the answers must contain |
-| `deploy_openwebui.sh` | Session 6: copies your code into the Open WebUI container |
+| `familyhub_pipe.py`, `deploy_openwebui.sh` | Session 6: the assistant inside Open WebUI (deploy: instructor only) |
+
+## How the team works on the GB10
+
+- Every participant has their own folder in the team folder: `aidevteam/familyhub-<name>`, a `git clone` of this repository. Each person works only in their own folder (see `sessions/HOW_TO_WORK.md`).
+- Starting session 7: whoever passes `python sessions/s6/check.py` goes on with their own code; everyone else runs `git stash -u`, `git fetch --tags`, `git checkout -b work gold-s6`.
+- New sessions: the instructor adds them to every folder, changing only the session files:
+  ```bash
+  cd aidevteam
+  for d in familyhub-*; do
+    git -C "$d" fetch origin --tags && git -C "$d" checkout origin/main -- sessions README.md deploy_openwebui.sh
+  done
+  ```
+- The model: Gemma 4 26B served by vLLM on port 8004 (`config.MODEL_URL`). From session 3 on, each person builds their own search index once: `python search.py --build`
+- Open WebUI is shared by the whole team. Only the instructor updates the Family Hub assistant there, from the instructor's own folder, with a version that passes all session checks: `bash deploy_openwebui.sh --instructor`. Participants never run this script: it replaces the assistant for everyone.
 
 ## Before session 1
 
