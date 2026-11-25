@@ -30,6 +30,8 @@ Rules:
 - Never ask for personal data.
 - For activities, use today's date: only mention sessions that have not ended yet, and give exact dates when asked "when".
 - When you give the time of a session, also give the day and the place.
+- The message may ask about several things. Answer every part, each in its own short paragraph or bullet.
+- If the passages answer only some parts, answer those and say briefly which part you could not find information about.
 - Answer in British English, briefly and professionally.
 
 Reply with JSON that matches this schema:
@@ -41,7 +43,7 @@ PASSAGES:
 
 class Answer(BaseModel):
     answer: str = Field(description="Short answer in British English, based ONLY on the passages.")
-    found: bool = Field(description="True if the passages contain the answer to the question.")
+    found: bool = Field(description="True if the passages answer at least one part of the question.")
     sources: list[int] = Field(description="Numbers of the passages used for the answer, for example [1, 3].")
     contains_advice: bool = Field(description="True if the answer gives medical, legal, financial or parenting "
                                               "advice that is not written in the passages.")
@@ -53,15 +55,19 @@ def today() -> date:
     return config.TODAY or date.today()
 
 
-def build_prompt(passages: list[dict], day: date) -> str:
-    """Build the system prompt: rules, current date, answer schema and numbered passages."""
+def build_prompt(passages: list[dict], day: date, questions: list[str] | None = None) -> str:
+    """Build the system prompt: rules, current date, answer schema, numbered passages and the questions to answer."""
     numbered = "\n\n".join(f"[{i}] {p['text']}" for i, p in enumerate(passages, start=1))
-    return RULES.format(today=f"{day:%A %d %B %Y}", schema=json.dumps(Answer.model_json_schema()), passages=numbered)
+    prompt = RULES.format(today=f"{day:%A %d %B %Y}", schema=json.dumps(Answer.model_json_schema()), passages=numbered)
+    if questions and len(questions) > 1:
+        prompt += "\n\nQUESTIONS TO ANSWER:\n" + "\n".join(f"{i}. {q}" for i, q in enumerate(questions, start=1))
+    return prompt
 
 
-def write_answer(question: str, passages: list[dict], history: list[dict] | None = None) -> Answer | None:
+def write_answer(question: str, passages: list[dict], history: list[dict] | None = None,
+                 questions: list[str] | None = None) -> Answer | None:
     """Generate a structured answer from the passages and recent conversation. Returns None on failure."""
-    messages = ([{"role": "system", "content": build_prompt(passages, today())}]
+    messages = ([{"role": "system", "content": build_prompt(passages, today(), questions)}]
                 + (history or [])[-6:] + [{"role": "user", "content": question}])
     try:
         response = client.chat.completions.parse(model=config.MODEL, messages=messages,
@@ -71,6 +77,18 @@ def write_answer(question: str, passages: list[dict], history: list[dict] | None
     except Exception:
         logger.exception("writing the answer failed: the model did not answer")
         return None
+
+
+def gather(queries: list[str]) -> list[dict]:
+    """Search every query and merge the hits round-robin, without duplicates, up to the limit in config.MAX_PASSAGES."""
+    results = [search(query) for query in queries]
+    passages, seen = [], set()
+    for rank in range(max((len(hits) for hits in results), default=0)):
+        for hits in results:
+            if rank < len(hits) and (hits[rank]["page"], hits[rank]["text"]) not in seen:
+                seen.add((hits[rank]["page"], hits[rank]["text"]))
+                passages.append(hits[rank])
+    return passages[:config.MAX_PASSAGES[len(queries)]]
 
 
 def source_links(passages: list[dict], used: list[int]) -> str:
@@ -103,8 +121,9 @@ def answer(question: str, history: list[dict] | None = None) -> str:
         if not form.on_topic:
             logger.info("off-topic question: off-topic reply sent")
             return config.OFF_TOPIC_REPLY
-        passages = search(form.search_query)
-        result = write_answer(question, passages, history)
+        queries = form.search_queries[:3] or [question]
+        passages = gather(queries)
+        result = write_answer(question, passages, history, queries)
         if result is None:
             logger.error("no answer from the model: fallback reply sent")
             return config.FALLBACK_REPLY

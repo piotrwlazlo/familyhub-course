@@ -40,8 +40,8 @@ if __name__ == "__main__":
             wrong = {"form": "the model did not return a valid form"}
         else:
             wrong = {name: getattr(form, name) for name, value in expected.items() if getattr(form, name) != value}
-            if not form.search_query.strip():
-                wrong["search_query"] = "empty"
+            if not form.search_queries or not all(q.strip() for q in form.search_queries):
+                wrong["search_queries"] = "empty"
         passed += not wrong
         print(f"{'PASS' if not wrong else 'FAIL'} | {question}" + (f"\n       wrong: {wrong}" if wrong else ""))
     for question, reply in FIXED:

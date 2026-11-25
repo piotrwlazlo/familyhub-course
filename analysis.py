@@ -1,4 +1,4 @@
-"""Question analysis: classifies a question and rewrites it as a standalone search query.
+"""Question analysis: classifies a question and rewrites it as standalone search queries.
 
 Usage: python analysis.py "What's the weather in London?"
 """
@@ -30,13 +30,18 @@ class QuestionAnalysis(BaseModel):
                     "phone number / email / how do I contact = contact; "
                     "what is / what happens / who is it for = description; anything else = other. "
                     "Spelling mistakes are common: 'wen' means 'when'.")
-    search_query: str = Field(description="The question rewritten as one complete, standalone question in English.")
+    search_queries: list[str] = Field(
+        description="Each separate need or question in the user's last message, rewritten as one complete, "
+                    "standalone question in English. Usually one item. Split only when the message asks about "
+                    "different things, for example 'I'm struggling with gambling and I'm in debt' -> "
+                    "['Where can I get help with gambling?', 'Where can I get help with debt?']. At most 3 items.")
 
 
 PROMPT = """You analyse questions sent to the Family Hub information assistant of Blackpool Council.
 Fill in the form about the user's last question. Do not answer the question.
 The earlier messages of the conversation (if any) help you understand short follow-up questions
-like "and where is it?": then write the full question in search_query.
+like "and where is it?": then write the full question in search_queries.
+The message may contain several questions or needs: list each one in search_queries.
 
 Reply with JSON that matches this schema (read the description of every field):
 {schema}"""
