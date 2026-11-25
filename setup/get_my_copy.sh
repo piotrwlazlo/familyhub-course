@@ -6,7 +6,7 @@ set -e
 SHARED="$(cd "$(dirname "$0")" && pwd)"
 DEST="${DEST:-$HOME/familyhub}"
 if [ -e "$DEST" ]; then echo "$DEST already exists: nothing to do."; exit 0; fi
-git clone -q "$SHARED/familyhub-app.bundle" "$DEST"      # the code with all golden states (gold-s1 ... gold-s6)
+git clone -q "$SHARED/familyhub-app.bundle" "$DEST"      # the code with all golden states (gold-s1 ... gold-s7)
 ln -s "$SHARED/venv" "$DEST/.venv"                 # the shared Python environment (read-only, nothing to install)
 cd "$DEST"
 git checkout -q -b my-work gold-s1

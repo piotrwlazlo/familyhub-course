@@ -6,10 +6,12 @@ import json
 import sys
 from typing import Literal
 
+from loguru import logger
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
 import config
+import logs
 
 client = OpenAI(base_url=config.MODEL_URL, api_key="not-needed")
 
@@ -47,8 +49,10 @@ def analyse(question: str, history: list[dict] | None = None) -> QuestionAnalysi
     try:
         response = client.chat.completions.parse(model=config.MODEL, messages=messages,
                                                  response_format=QuestionAnalysis, temperature=0)
+        logs.log_reasoning("analysis", response.choices[0].message)
         return response.choices[0].message.parsed
     except Exception:
+        logger.exception("question analysis failed: the model did not answer")
         return None
 
 

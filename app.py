@@ -10,7 +10,8 @@ import os
 import time
 
 from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
+from loguru import logger
 from pydantic import BaseModel
 
 import config
@@ -18,6 +19,7 @@ import config
 config.MODEL_URL = os.environ.get("FAMILYHUB_MODEL_URL", config.MODEL_URL)   # must be set before importing bot
 config.MODEL = os.environ.get("FAMILYHUB_MODEL", config.MODEL)
 import bot  # noqa: E402
+import search  # noqa: E402
 
 APP_MODEL_NAME = "family-hub-assistant"      # model id exposed to clients
 app = FastAPI()
@@ -34,6 +36,25 @@ def as_text(content) -> str:
     if isinstance(content, list):
         return " ".join(part.get("text", "") for part in content if isinstance(part, dict))
     return content or ""
+
+
+@app.get("/health")
+def health():
+    """Is the assistant ready? 200 with status ok, or 503 with the part that failed."""
+    checks = {"model": model_ok(), "index": search.collection.count() > 0}
+    ok = all(checks.values())
+    if not ok:
+        logger.error("health check failed: {}", checks)
+    return JSONResponse({"status": "ok" if ok else "error", **checks}, status_code=200 if ok else 503)
+
+
+def model_ok() -> bool:
+    """True if the model server answers (a quick list of its models, no answer is generated)."""
+    try:
+        bot.client.with_options(timeout=3, max_retries=0).models.list()
+        return True
+    except Exception:
+        return False
 
 
 @app.get("/v1/models")

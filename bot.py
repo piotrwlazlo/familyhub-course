@@ -4,17 +4,21 @@ Usage: python bot.py "What is the phone number for North Family Hub?"
 """
 import json
 import sys
+import time
 from datetime import date
 
+from loguru import logger
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
 import config
+import logs
 from analysis import analyse
 from checks import check_answer, is_crisis
 from search import search
 
 client = OpenAI(base_url=config.MODEL_URL, api_key="not-needed")
+logs.setup_logging()
 
 RULES = """You are the Family Hub information assistant of Blackpool Council.
 Today is {today}.
@@ -62,8 +66,10 @@ def write_answer(question: str, passages: list[dict], history: list[dict] | None
     try:
         response = client.chat.completions.parse(model=config.MODEL, messages=messages,
                                                  response_format=Answer, temperature=0)
+        logs.log_reasoning("answer", response.choices[0].message)
         return response.choices[0].message.parsed
     except Exception:
+        logger.exception("writing the answer failed: the model did not answer")
         return None
 
 
@@ -82,23 +88,33 @@ def answer(question: str, history: list[dict] | None = None) -> str:
 
     history: previous messages as [{"role": "user" | "assistant", "content": str}, ...]
     """
-    if is_crisis(question):                     # keyword check runs before any model call
-        return config.CRISIS_REPLY
-    form = analyse(question, history)
-    if form is None:
-        return config.FALLBACK_REPLY
-    if form.is_crisis:
-        return config.CRISIS_REPLY
-    if not form.on_topic:
-        return config.OFF_TOPIC_REPLY
-    passages = search(form.search_query)
-    result = write_answer(question, passages, history)
-    if result is None:
-        return config.FALLBACK_REPLY
-    problem = check_answer(result, passages)
-    if problem:
-        return problem
-    return result.answer + source_links(passages, result.sources)
+    with logger.contextualize(request_id=logs.new_request_id()):
+        started = time.perf_counter()
+        if is_crisis(question):                 # keyword check runs before any model call
+            logger.warning("crisis words in the question: crisis reply sent")
+            return config.CRISIS_REPLY
+        form = analyse(question, history)
+        if form is None:
+            logger.error("no question analysis: fallback reply sent")
+            return config.FALLBACK_REPLY
+        if form.is_crisis:
+            logger.warning("the model marked the question as a crisis: crisis reply sent")
+            return config.CRISIS_REPLY
+        if not form.on_topic:
+            logger.info("off-topic question: off-topic reply sent")
+            return config.OFF_TOPIC_REPLY
+        passages = search(form.search_query)
+        result = write_answer(question, passages, history)
+        if result is None:
+            logger.error("no answer from the model: fallback reply sent")
+            return config.FALLBACK_REPLY
+        problem = check_answer(result, passages)
+        if problem:
+            return problem                      # check_answer has logged which rule
+        logger.info("answered | kind={} | pages={} | {:.1f} s", form.kind,
+                    [passages[n - 1]["page"] for n in result.sources if 1 <= n <= len(passages)],
+                    time.perf_counter() - started)
+        return result.answer + source_links(passages, result.sources)
 
 
 if __name__ == "__main__":

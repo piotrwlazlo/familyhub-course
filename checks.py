@@ -1,6 +1,8 @@
 """Deterministic validation of questions and generated answers."""
 import re
 
+from loguru import logger
+
 import config
 
 # Phrases that trigger the fixed crisis reply
@@ -30,11 +32,16 @@ def unknown_phone_numbers(answer: str, passages: list[dict]) -> list[str]:
 def check_answer(result, passages: list[dict]) -> str | None:
     """Return the fallback reply if the answer fails validation, otherwise None."""
     if not result.found or not result.answer.strip():
-        return config.FALLBACK_REPLY          # not found in the passages
+        logger.warning("answer blocked: not found in the passages")
+        return config.FALLBACK_REPLY
     if not result.sources:
-        return config.FALLBACK_REPLY          # no sources
+        logger.warning("answer blocked: no sources")
+        return config.FALLBACK_REPLY
     if result.contains_advice or result.contains_personal_data:
-        return config.FALLBACK_REPLY          # flagged as advice or personal data
-    if unknown_phone_numbers(result.answer, passages):
-        return config.FALLBACK_REPLY          # unverified phone number
+        logger.warning("answer blocked: marked as advice or personal data")
+        return config.FALLBACK_REPLY
+    unknown = unknown_phone_numbers(result.answer, passages)
+    if unknown:
+        logger.warning("answer blocked: unknown phone number {}", unknown)
+        return config.FALLBACK_REPLY
     return None

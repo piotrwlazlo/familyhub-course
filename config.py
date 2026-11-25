@@ -34,3 +34,7 @@ FALLBACK_REPLY = ("Sorry, I can't answer that here. Please contact your local fa
 HELP_NOTICE = ("*This assistant only gives information from the Blackpool Family Hub web pages and cannot give "
                f"advice. If you need help, please contact your local family hub ([phone numbers]({HUBS_PAGE})). "
                "In an emergency, call 999.*")
+
+# Logs: logs/familyhub.log (main log) and logs/reasoning.log (what the model returned, kept 3 days)
+LOG_DIR = HERE / "logs"
+LOG_LEVEL = "INFO"     # DEBUG shows more detail
