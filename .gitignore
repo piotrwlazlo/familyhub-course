@@ -6,3 +6,5 @@ tests/report.md
 tests/results.json
 app.log
 logs/
+staging/
+backup/
