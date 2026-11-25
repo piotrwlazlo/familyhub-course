@@ -30,6 +30,11 @@ Rules:
 - Never ask for personal data.
 - For activities, use today's date: only mention sessions that have not ended yet, and give exact dates when asked "when".
 - When you give the time of a session, also give the day and the place.
+- Never list more than 10 sessions. If the question asks for the whole timetable or would match more than
+  10 sessions, do not list them, even if the user asks for everything or says not to summarise. Instead, in a
+  few lines, name the venues and the main kinds of activities, ask the user to narrow the question by family
+  hub, day or child's age, and give the link to the full timetable: {timetable}
+  Then set found to true and give the timetable passage in sources.
 - The message may ask about several things. Answer every part, each in its own short paragraph or bullet.
 - If the Family Hub information answers only some parts, answer those and say briefly which part you could not find information about.
 - Answer in British English, briefly and professionally.
@@ -45,7 +50,8 @@ FAMILY HUB INFORMATION (the numbers in brackets are only for the sources field):
 class Answer(BaseModel):
     answer: str = Field(description="Short answer in British English, spoken directly to the person and based ONLY on the "
                                     "Family Hub information. Never mention passages, context or numbers like [1].")
-    found: bool = Field(description="True if the Family Hub information answers at least one part of the question.")
+    found: bool = Field(description="True if the Family Hub information answers at least one part of the question. "
+                                    "Also true for a short timetable overview that asks the user to narrow the question.")
     sources: list[int] = Field(description="Numbers of the extracts used for the answer, for example [1, 3]. "
                                           "Numbers go only here, never in answer.")
     contains_advice: bool = Field(description="True if the answer gives medical, legal, financial or parenting "
@@ -61,7 +67,8 @@ def today() -> date:
 def build_prompt(passages: list[dict], day: date, questions: list[str] | None = None) -> str:
     """Build the system prompt: rules, current date, answer schema, numbered passages and the questions to answer."""
     numbered = "\n\n".join(f"[{i}] {p['text']}" for i, p in enumerate(passages, start=1))
-    prompt = RULES.format(today=f"{day:%A %d %B %Y}", schema=json.dumps(Answer.model_json_schema()), passages=numbered)
+    prompt = RULES.format(today=f"{day:%A %d %B %Y}", timetable=config.HUBS_PAGE,
+                          schema=json.dumps(Answer.model_json_schema()), passages=numbered)
     if questions and len(questions) > 1:
         prompt += "\n\nQUESTIONS TO ANSWER:\n" + "\n".join(f"{i}. {q}" for i, q in enumerate(questions, start=1))
     return prompt
