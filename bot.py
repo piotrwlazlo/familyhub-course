@@ -24,29 +24,32 @@ RULES = """You are the Family Hub information assistant of Blackpool Council.
 Today is {today}.
 
 Rules:
-- Answer ONLY with information from the PASSAGES below. Do not use anything else you know.
-- If the passages do not contain the answer, set found to false.
-- Do not give medical, legal, financial or parenting advice. Only say what the passages say.
+- Answer ONLY with the FAMILY HUB INFORMATION below. Do not use anything else you know.
+- If the FAMILY HUB INFORMATION does not contain the answer, set found to false.
+- Do not give medical, legal, financial or parenting advice. Only say what the Family Hub information says.
 - Never ask for personal data.
 - For activities, use today's date: only mention sessions that have not ended yet, and give exact dates when asked "when".
 - When you give the time of a session, also give the day and the place.
 - The message may ask about several things. Answer every part, each in its own short paragraph or bullet.
-- If the passages answer only some parts, answer those and say briefly which part you could not find information about.
+- If the Family Hub information answers only some parts, answer those and say briefly which part you could not find information about.
 - Answer in British English, briefly and professionally.
+- Speak directly to the person. Never mention "passages", "context", "documents", "the text", "the information provided" or anything similar, and never write numbers like [1] in the answer. The person cannot see this material; links to the pages are added under your answer automatically. If you need to refer to it, say "the Family Hub pages", for example "I found this information on the Family Hub pages" or "I couldn't find that on the Family Hub pages".
 
 Reply with JSON that matches this schema:
 {schema}
 
-PASSAGES:
+FAMILY HUB INFORMATION (the numbers in brackets are only for the sources field):
 {passages}"""
 
 
 class Answer(BaseModel):
-    answer: str = Field(description="Short answer in British English, based ONLY on the passages.")
-    found: bool = Field(description="True if the passages answer at least one part of the question.")
-    sources: list[int] = Field(description="Numbers of the passages used for the answer, for example [1, 3].")
+    answer: str = Field(description="Short answer in British English, spoken directly to the person and based ONLY on the "
+                                    "Family Hub information. Never mention passages, context or numbers like [1].")
+    found: bool = Field(description="True if the Family Hub information answers at least one part of the question.")
+    sources: list[int] = Field(description="Numbers of the extracts used for the answer, for example [1, 3]. "
+                                          "Numbers go only here, never in answer.")
     contains_advice: bool = Field(description="True if the answer gives medical, legal, financial or parenting "
-                                              "advice that is not written in the passages.")
+                                              "advice that is not written in the Family Hub information.")
     contains_personal_data: bool = Field(description="True if the answer contains personal data of a private "
                                                      "person (public phone numbers and emails of services are fine).")
 
