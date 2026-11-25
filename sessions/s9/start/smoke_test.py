@@ -1,4 +1,4 @@
-"""Session 8: smoke test. A few quick checks against the RUNNING service, right after it is started or deployed.
+"""Session 9: smoke test. A few quick checks against the RUNNING service, right after it is started or deployed.
 
 Run:  python tests/smoke_test.py http://localhost:<your port>
 """

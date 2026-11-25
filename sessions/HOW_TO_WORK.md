@@ -1,24 +1,38 @@
 # How to work: VS Code on the GB10
 
-Everyone works with their own Linux account and their own folder on the GB10, in VS Code (connected to the GB10 the same way as in the earlier labs).
+Everyone works in their own folder on the GB10, in VS Code (connected to the GB10 the same way as in the earlier labs). Nobody works in someone else's folder, and nobody changes anything that is shared by the team.
 
-## Your own folder (once, before session 1)
-Everyone has their own copy. Nobody works in a shared folder, so nobody can break someone else's code.
-1. In the VS Code terminal (Terminal > New Terminal) run:  `bash /srv/familyhub-course/get_my_copy.sh`
-   It takes a few seconds and makes `~/familyhub`. Nothing to install: the Python environment is shared and ready.
-2. In VS Code: File > Open Folder > `~/familyhub`
-3. Pick the Python interpreter: `Ctrl+Shift+P` > *Python: Select Interpreter* > `.venv/bin/python`
+## Your own folder
+The instructor made one folder per person in the team folder `aidevteam`: `familyhub-<your name>`. It is a `git clone` of the course repository, with your own changes in it.
+- In VS Code: File > Open Folder > `aidevteam/familyhub-<your name>`
+- Run everything in the VS Code terminal, from that folder, with the Python environment you used in sessions 1 to 6.
 
-(`/srv/familyhub-course` is made once by one person with sudo rights: `sudo bash install_shared.sh` from the course package.)
+## New sessions
+The instructor adds the files of each new session (`sessions/sN/`) to every folder. This changes only the `sessions/` folder: your own code stays as it is.
 
 ## Every session
 - Write the code in the `.py` files (`bot.py`, `search.py` ...). The task card says which file and which function.
-- Run everything in the VS Code terminal, from your folder, for example `python bot.py "When is Babbling Babies?"` and `python sessions/s1/check.py`
-- Want to try things step by step? Make a notebook `scratch.ipynb` (Jupyter extension), pick the `.venv` kernel and use:
+- Run everything from your folder, for example `python bot.py "When is Babbling Babies?"` and `python sessions/s7/check.py`
+- When you start a service for yourself, use your own port (ask the instructor which one): `uvicorn app:app --port <your port>`
+- Want to try things step by step? Make a notebook `scratch.ipynb` (Jupyter extension) and use:
   ```python
   import importlib, bot
   importlib.reload(bot)      # run this after every change to bot.py, or the notebook keeps the old code
   bot.answer("When is Babbling Babies?")
   ```
-- Your version does not pass the check of the last session? Take the golden state before you start the new session:
-  `git checkout gold-s2 -- .` (use the number of the last session). This replaces the code files with the working version.
+
+## Starting session 7 (and later sessions)
+1. Run the check of the last session, for example `python sessions/s6/check.py`
+2. It prints `SESSION DONE`: go on with your own code.
+3. It does not: put your changes aside and take the working version of session 6:
+   ```bash
+   git stash -u
+   git fetch --tags
+   git checkout -b work gold-s6
+   ```
+   Your old changes are not lost: `git stash list` shows them.
+4. For sessions 8 and 9: if the check of the session before does not pass, ask the instructor for the working version.
+
+## Never in your own folder
+- `bash deploy_openwebui.sh`: it replaces the Family Hub assistant in Open WebUI for the whole team. Only the instructor deploys, from the instructor's folder, with a version that passes all checks.
+- Changes to shared things: the Open WebUI container, the model containers, other people's folders.

@@ -1,5 +1,5 @@
 
-# Session 9: nightly data refresh (python refresh.py)
+# Session 10: nightly data refresh (python refresh.py)
 STAGING_DIR = HERE / "staging"     # the new knowledge and index are built here first
 BACKUP_DIR = HERE / "backup"       # the previous knowledge and index, for python refresh.py --rollback
 TIMETABLE_URL = "https://www.blackpool.gov.uk/custom/api/contenttype/entries/familyHubEvents"   # sessions (JSON)
