@@ -1,114 +1,98 @@
-"""Session 7 check: the assistant writes useful logs, keeps the model's reasoning apart and has a health check.
+"""Session 7 check: fetch_knowledge.py downloads the whole knowledge from the council website, every section of every page.
 
-Run from your main folder:  python sessions/s7/check.py   (about 1 minute)
-The check writes its own logs to logs/check/, so your logs/familyhub.log stays as it is.
+Run from your main folder, after `python fetch_knowledge.py` and `python search.py --build`:
+    python sessions/s7/check.py   (about 1 minute, the model is needed for the last two checks)
 """
-import shutil
+import json
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # the sessions folder
 
-from common import APP, finish  # noqa: E402  (also sets up the paths and the fixed date)
+from common import APP, finish, has_any  # noqa: E402  (also sets up the paths and the fixed date)
 
 import config  # noqa: E402
 
-config.LOG_DIR = APP / "logs" / "check"
-shutil.rmtree(config.LOG_DIR, ignore_errors=True)
-
-from fastapi.testclient import TestClient  # noqa: E402
-from loguru import logger  # noqa: E402
-from openai import OpenAI  # noqa: E402
-
-import analysis  # noqa: E402
-import bot  # noqa: E402
-import checks  # noqa: E402
-
-MAIN = config.LOG_DIR / "familyhub.log"
-REASONING = config.LOG_DIR / "reasoning.log"
-DEAD_MODEL = OpenAI(base_url="http://127.0.0.1:9/v1", api_key="none", max_retries=0, timeout=5)
+HERE = Path(__file__).parent
+SEARCH_TARGET = 0.95
+# Phrases from the later, folded sections of pages built from expandable sections
+FOLDED = {
+    "support-available-at-blackpool-family-hub.md": ["gambling", "Housing help"],
+    "parent-and-carer-panels.md": ["Sip and Share"],
+    "supporting-your-child.md": ["HENRY", "Oral care"],
+}
 results = []
 
 
-def read(path: Path) -> str:
-    return path.read_text(encoding="utf-8") if path.exists() else ""
-
-
-def count(level: str) -> int:
-    """Number of lines with this level in the main log."""
-    return sum(f"| {level} " in line for line in read(MAIN).splitlines())
-
-
-def show(name: str, ok: bool, hint: str = "") -> None:
+def result(ok: bool, text: str, detail: str = "") -> None:
     results.append(ok)
-    print(f"{'PASS' if ok else 'FAIL'} | {name}")
-    if not ok and hint:
-        print(f"       hint: {hint}")
+    print(f"{'PASS' if ok else 'FAIL'} | {text}")
+    if not ok and detail:
+        print(f"       {detail}")
 
 
-# 1. Levels and files (no model needed)
-logger.debug("check: debug line")
-logger.info("check: info line")
-logger.warning("check: warning line")
-logger.error("check: error line")
-logger.bind(reasoning=True).debug("check: reasoning line")
-main = read(MAIN)
-show("INFO, WARNING and ERROR lines are in logs/familyhub.log",
-     all(f"check: {word} line" in main for word in ("info", "warning", "error")),
-     "setup_logging in logs.py: the second logger.add, and bot.py must call logs.setup_logging()")
-show("DEBUG lines are not in the main log (its level is INFO)", "check: debug line" not in main,
-     "level=config.LOG_LEVEL for familyhub.log")
-show("reasoning lines go only to logs/reasoning.log",
-     "check: reasoning line" in read(REASONING) and "check: reasoning line" not in main,
-     "filter=is_reasoning for reasoning.log and filter=not_reasoning for the other two")
+try:
+    import fetch_knowledge
+except Exception as error:
+    print(f"FAIL | fetch_knowledge.py cannot be imported: {error}\n"
+          "       Copy sessions/s7/start/fetch_knowledge.py and sessions/s7/start/timetable.py to your main folder.")
+    finish(0, 1)
 
-# 2. A broken rule is logged (no model needed)
-passages = [{"id": "p1", "page": "p", "title": "t", "url": "u", "text": "Call North Family Hub on 01253 476480."}]
-made_up = bot.Answer(answer="Call 01253 999999.", found=True, sources=[1],
-                     contains_advice=False, contains_personal_data=False)
-before = count("WARNING")
-show("a broken rule gives the fallback reply and a WARNING",
-     checks.check_answer(made_up, passages) == config.FALLBACK_REPLY and count("WARNING") > before,
-     "checks.py: logger.warning(...) before each return config.FALLBACK_REPLY in check_answer")
+# 1-2. main_text on a saved council page (no internet needed)
+html = (HERE / "support_page.html").read_text(encoding="utf-8")
+try:
+    text = fetch_knowledge.main_text(html)
+except Exception as error:
+    text = ""
+    print(f"       main_text failed: {error!r}")
+result("Advice and helplines" in text and "Mind" in text,
+       "main_text finds the main text of a council page", "the first section of the page is missing")
+missing = [p for p in ["Help with money and debt", "gambling", "Housing help"] if p.lower() not in text.lower()]
+result(not missing, "main_text keeps every section of a page with expandable sections",
+       f"missing in the text: {missing}. Compare the headings on the page with the headings in your text.")
 
-# 3. The model is down: the resident gets the fallback reply, and we see an ERROR
-real = bot.client, analysis.client
-bot.client = analysis.client = DEAD_MODEL
-before = count("ERROR")
-reply = bot.answer("When is Babbling Babies?")
-bot.client, analysis.client = real
-show("model down: fallback reply AND an ERROR line in the log",
-     reply == config.FALLBACK_REPLY and count("ERROR") > before,
-     "analysis.py and bot.py: logger.exception(...) in the except part, and logger.error(...) in answer()")
+# 3. knowledge/: the same files as the course knowledge, with the right header
+expected = (HERE / "expected_files.txt").read_text(encoding="utf-8").split()
+have = {p.name for p in config.KNOWLEDGE.glob("*")} if config.KNOWLEDGE.exists() else set()
+lost = sorted(set(expected) - have)
+result(not lost and not (APP / "knowledge.new").exists(),
+       f"knowledge/ has all {len(expected)} files (run python fetch_knowledge.py first)",
+       f"missing: {lost[:8]}{' ...' if len(lost) > 8 else ''}")
+bad = [p.name for p in config.KNOWLEDGE.glob("*.md")
+       if not p.read_text(encoding="utf-8").startswith("# ") or "\nURL: https://" not in p.read_text(encoding="utf-8")[:400]]
+result(not bad, "every page starts with '# Title' and 'URL: ...'", f"wrong header: {bad[:8]}")
 
-# 4. A normal question (the model is needed from here on)
-before = count("INFO")
-reply = bot.answer("What is the phone number for North Family Hub?")
-info = [line for line in read(MAIN).splitlines() if "| INFO " in line]
-request_id = info[-1].split("|")[2].strip() if len(info) > before else "-"
-show("an answered question gives an INFO line with a request id",
-     "01253 476480" in reply and request_id != "-",
-     "bot.py answer(): with logger.contextualize(request_id=logs.new_request_id()): ... and logger.info(...)")
-show("the model's reasoning for that question (analysis and answer) is in logs/reasoning.log",
-     request_id != "-" and read(REASONING).count(request_id) >= 2,
-     "log_reasoning in logs.py, called in analysis.py and in bot.py write_answer")
+# 4. the folded sections reached knowledge/
+gaps = [f"{name}: {phrase}" for name, phrases in FOLDED.items() for phrase in phrases
+        if not (config.KNOWLEDGE / name).exists()
+        or phrase.lower() not in (config.KNOWLEDGE / name).read_text(encoding="utf-8").lower()]
+result(not gaps, "the downloaded pages have their folded sections", f"missing: {gaps}")
 
-# 5. A crisis question
-before = count("WARNING")
-reply = bot.answer("I am in danger at home right now")
-show("a crisis question gives the crisis reply and a WARNING", "999" in reply and count("WARNING") > before,
-     "bot.py answer(): logger.warning(...) before return config.CRISIS_REPLY")
+# 5. timetable pages
+table = config.KNOWLEDGE / "family-hubs-timetable.md"
+rows = table.read_text(encoding="utf-8").count("\n| ") if table.exists() else 0
+result(rows > 20, "the timetable page lists the family hub sessions", f"only {rows} table rows")
 
-# 6. The health check
-import app  # noqa: E402
-web = TestClient(app.app)
-response = web.get("/health")
-show("/health answers 200 with status ok while everything works",
-     response.status_code == 200 and response.json().get("status") == "ok", f"got {response.status_code} {response.text[:100]}")
-bot.client = DEAD_MODEL
-response = web.get("/health")
-bot.client = real[0]
-show("/health answers 503 with model false when the model is down",
-     response.status_code == 503 and response.json().get("model") is False, f"got {response.status_code} {response.text[:100]}")
+# 6. search on the new knowledge (needs: python search.py --build)
+index_time = max((p.stat().st_mtime for p in config.INDEX_DIR.rglob("*")), default=0) if config.INDEX_DIR.exists() else 0
+knowledge_time = max((p.stat().st_mtime for p in config.KNOWLEDGE.glob("*.md")), default=0)
+if index_time < knowledge_time:
+    result(False, "search finds the right pages", "the index is older than knowledge/: run python search.py --build")
+else:
+    from search import search  # noqa: E402
+    questions = json.loads((HERE.parent / "golden_questions.json").read_text(encoding="utf-8"))
+    questions = [q for q in questions if q["expected_pages"] and q["expect"] == "answer"]
+    hits = sum(bool(set(q["expected_pages"]) & {hit["page"] for hit in search(q["question"])}) for q in questions)
+    result(hits / len(questions) >= SEARCH_TARGET,
+           f"search finds the right page for {hits}/{len(questions)} golden questions (target {SEARCH_TARGET:.0%})")
 
-shutil.rmtree(config.LOG_DIR, ignore_errors=True)
-finish(sum(results), len(results))
+    # 7-8. the assistant answers from the new sections
+    import bot  # noqa: E402
+    for question, must in [("Where can I get help with gambling?", ["Empowerment", "Lancashire Women"]),
+                           ("Where can I get free advice about debt?", ["National Debt"])]:
+        try:
+            reply = bot.answer(question)
+        except Exception as error:
+            reply = f"ERROR: {error}"
+        result(has_any(reply, must), f"the assistant answers: {question}", f"answer: {reply[:300]!r}")
+
+finish(sum(results), 9)
