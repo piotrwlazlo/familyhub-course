@@ -8,7 +8,7 @@ TARGET=/app/backend/data/familyhub-app
 cd "$(dirname "$0")"
 docker exec "$CONTAINER" rm -rf "$TARGET"
 docker exec "$CONTAINER" mkdir -p "$TARGET"
-tar cf - --exclude=.venv --exclude=index --exclude=.git --exclude=__pycache__ --exclude=tests --exclude=sessions . \
+tar cf - --exclude=.venv --exclude=index --exclude=logs --exclude=.git --exclude=__pycache__ --exclude=tests --exclude=sessions . \
   | docker exec -i "$CONTAINER" tar xf - -C "$TARGET"
 docker exec -w "$TARGET" "$CONTAINER" python search.py --build | tail -1
 echo "Deployed to $CONTAINER:$TARGET"
