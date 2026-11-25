@@ -1,73 +1,76 @@
-# Session 9: Fresh knowledge every night
+# Session 9: Tests before every release
 
 *Work in VS Code, in your own copy: see `sessions/HOW_TO_WORK.md`.*
 
-**Goal:** today the assistant knows the council pages as they were on 21 November 2026. The timetable ends on 23 December, so after Christmas it knows no sessions at all. After this session one command, `python refresh.py`, downloads every page and the timetable again, checks the new data and puts it live only when it is good. In production this command runs every night.
+**Goal:** the assistant gets the tests a production service needs. **Unit tests** check small pieces of our own code without the model, in a split second, on every change. A **smoke test** checks the running service in a few seconds, right after it is started or deployed. On the way you find and fix a real bug in the web service.
 
-**How a safe refresh works**
+**You start from** the session 8 version (if yours does not pass its check, ask the instructor for the working version). The hunt needs the working versions of `search.py`, `checks.py` and `app.py`.
 
-| Step | What happens | If it goes wrong |
-|---|---|---|
-| 1. Download | every page again, into `staging/knowledge` (never straight into `knowledge/`) | a page that fails keeps its old copy, with a WARNING |
-| 2. Quick rules | enough pages downloaded, the timetable has sessions, no staff data | stop: ERROR, the old knowledge stays live |
-| 3. Build | a new search index in `staging/index` | |
-| 4. Golden questions | the session 3 search test on the new index: does each question still find its page? | stop: ERROR, the old knowledge stays live |
-| 5. Swap | `staging/` goes live, the old `knowledge/` and `index/` move to `backup/` | `python refresh.py --rollback` brings them back |
-
-**You start from** the session 8 version (if yours does not pass its check, ask the instructor for the working version).
-
-**Before you start (once, the instructor):** install trafilatura into the Python environment the team uses: `pip install trafilatura`
+**Before you start (once, the instructor):** install pytest into the Python environment the team uses: `pip install pytest`
 
 **You get**
-- `sessions/s9/start/sources.py`: copy to the main folder. Ready: `download_text(url)`, `download_timetable()`, `save_timetable(events, folder)`, `count_sessions(text)`, `build_index(knowledge, index)`, `search_score(knowledge, index)`
-- `sessions/s9/start/refresh.py`: copy to the main folder. Ready: the timetable part, the start of `refresh()` and the command line
-- `sessions/s9/start/config_addition.py`: paste at the end of `config.py`
-- add two lines to `.gitignore`: `staging/` and `backup/`
+- `sessions/s9/start/test_units.py`: copy to `tests/`. It has one example test.
+- `sessions/s9/start/smoke_test.py`: copy to `tests/`. It has the first of four checks.
+- `sessions/s9/hunt.py`: a quick quality check of your unit tests (ready, you only run it)
 
-**You build** in `refresh.py` (keep these names, the check uses them)
+**How a test looks**
+```python
+from checks import is_crisis
 
-| Function | What it does |
+def test_crisis_words_are_found():                     # the name starts with test_ and says what must be true
+    assert is_crisis("I am in danger at home right now")   # assert: this must be True, or the test fails
+```
+Run all tests: `python -m pytest tests/test_units.py` (green dots = pass, `F` = fail).
+
+**You build**
+- `tests/test_units.py`: at least 8 unit tests. What the functions must do:
+
+| Function (file) | Rules to test |
 |---|---|
-| `download_all(staging)` | for every page in `knowledge/`: skip `config.TIMETABLE_PAGES`; copy `config.KEEP_PAGES`; for all others `sources.download_text(page["url"])` and write `# <title>`, `URL: <url>`, an empty line and the text to `staging/knowledge/<same file name>`. On an error: `logger.warning` with the URL, add the URL to `failed`, copy the old file |
-| `check_pages(staging, failed)` | three rules, each problem is one sentence in the list it returns: more than `config.MAX_FAILED` of the pages failed; fewer than `config.MIN_ROWS` sessions in `family-hubs-timetable.md`; `"sys"` in `timetable.json` |
-| `swap(staging)` | empty `backup/`, move `knowledge/` and `index/` into it, move `staging/knowledge` and `staging/index` to their place, delete `staging/` |
-| `rollback()` | swap the live `knowledge/` and `index/` with the ones in `backup/`; `logger.warning`; return `True` (`False` with `logger.error` if there is no backup) |
-| `refresh()` | the five steps of the table above, with a log line for each result; return `True` only when the new data is live |
+| `make_chunks(text, max_chars)` (`search.py`) | a heading (`# ...`) starts a new passage; no passage is longer than `max_chars`; the last passage of the text is kept |
+| `fuse(list1, list2)` (`search.py`) | an id that is high in both lists comes first; both lists count, not only the first |
+| `words(text)` (`search.py`) | lower case words, without stop words like *the*, *is*, *when* |
+| `is_crisis(question)` (`checks.py`) | finds crisis words, also in CAPITAL letters; a normal question is no crisis |
+| `unknown_phone_numbers(answer, passages)` (`checks.py`) | a made-up number is reported; a real number is not, also when written with different spaces |
+| `check_answer(result, passages)` (`checks.py`) | a good answer passes (`None`); no sources, advice or personal data gives `config.FALLBACK_REPLY` |
+| `as_text(content)` (`app.py`) | a plain text stays the same; a message sent in parts (`[{"type": "text", "text": "Hello"}, ...]`) becomes one text |
+
+- `app.py`: `chat()` answers 400 for an empty message list (today it crashes)
+- `tests/smoke_test.py`: four checks against the running service: health, model list, one real question, empty message list
 
 ## Steps
-1. Copy the starter files: `cp sessions/s9/start/sources.py sessions/s9/start/refresh.py .`, paste `config_addition.py` at the end of `config.py`, add the two lines to `.gitignore`.
-2. Write `check_pages`. Run the check: `python sessions/s9/check.py`. The first line should say PASS.
-3. Write `download_all` and `refresh` up to the quick rules. Run the check again: "website down" should pass.
-4. Add the build, the golden questions and `swap` to `refresh`. Run the check: "maintenance pages" and "normal night" should pass.
-5. Write `rollback`. Run the check: `SESSION DONE`.
-6. **The real thing:** `python refresh.py`. It downloads about 115 pages (a few minutes). Read the log lines: how many downloads failed, what search score did the new data get? Then see what changed on the council website since 21 November: `git diff --stat knowledge/`, and for one page `git diff knowledge/<page>.md`
-7. Ask about the new data, for example `python bot.py "What is on at North Family Hub next week?"`. A running service (session 7) still answers from the old data until you restart it.
-8. Go back to the course data, because the checks of the other sessions expect the knowledge from 21 November: `python refresh.py --rollback`, then `git status` should show no changes in `knowledge/`.
+1. Copy the starter files: `cp sessions/s9/start/test_units.py sessions/s9/start/smoke_test.py tests/` and run the unit tests: `python -m pytest tests/test_units.py` (1 passed).
+2. Write unit tests for `is_crisis`, `unknown_phone_numbers` and `check_answer`: these are our safety rules. For `check_answer` you need an answer form: `bot.Answer(answer="Call 01253 476480.", found=True, sources=[1], contains_advice=False, contains_personal_data=False)`. Change one field per test. Run pytest after each new test.
+3. Write unit tests for `make_chunks` and `fuse`. Write the small texts and lists yourself, e.g. `fuse(["a", "b"], ["c", "b"])`.
+4. Quick quality check: `python sessions/s9/hunt.py`. If a line says **SURVIVES**, add a test for that rule.
+5. **Find a real bug:** add this test. It fails today, because the service crashes on an empty message list. Then fix `chat()` in `app.py` so it answers with status 400 instead, and run pytest again.
+   ```python
+   from fastapi.testclient import TestClient
+   import app
 
-## Every night in production
-One line in the crontab of the service account (`crontab -e`) runs the refresh at 2 am, and a restart of the service after a good refresh:
-```
-0 2 * * * cd /opt/familyhub && .venv/bin/python refresh.py && systemctl restart familyhub
-```
-Do not add it on the course GB10. Who runs it on the council's server, and who reads the ERROR lines in the morning, is a question for council IT (see the deck).
+   def test_empty_message_list_gives_400():
+       response = TestClient(app.app).post("/v1/chat/completions", json={"messages": []})
+       assert response.status_code == 400
+   ```
+6. **Smoke test:** complete the three TODO checks in `tests/smoke_test.py`. Start your service (`.venv/bin/uvicorn app:app --port <your port>`) and in a second terminal run `python tests/smoke_test.py http://localhost:<your port>`. Stop the service, run the smoke test again: what do you see?
+7. Run the check: `python sessions/s9/check.py` (it starts the service by itself), then the check of session 8.
 
 ## Prompts for the AI assistant
-- *"Complete check_pages(staging, failed) in refresh.py. new = staging / 'knowledge'. Add one sentence to problems for each rule: if len(failed) is more than config.MAX_FAILED times the number of .md files in new; if sources.count_sessions of the text of new / 'family-hubs-timetable.md' is below config.MIN_ROWS; if the text of new / 'timetable.json' contains '\"sys\"'. Return problems."*
-- *"Complete the loop in download_all: if page['page'] is in config.TIMETABLE_PAGES continue; if it is in config.KEEP_PAGES copy path to new / path.name with shutil.copy and continue; otherwise try text = sources.download_text(page['url']) and write f\"# {page['title']}\\nURL: {page['url']}\\n\\n{text}\" to new / path.name; except Exception as error: logger.warning with the url and the error, failed.append(page['url']), copy the old file."*
-- *"Complete swap(staging) with shutil.rmtree(config.BACKUP_DIR, ignore_errors=True), mkdir, Path.rename: config.KNOWLEDGE to BACKUP_DIR / 'knowledge', config.INDEX_DIR to BACKUP_DIR / 'index', staging / 'knowledge' to config.KNOWLEDGE, staging / 'index' to config.INDEX_DIR, then shutil.rmtree(staging)."*
-- *"Write rollback(): for knowledge and index, swap the live folder with the one in config.BACKUP_DIR using a temporary name BACKUP_DIR / (name + '-newer'). If there is no BACKUP_DIR / 'knowledge', log an error and return False."*
+- *"Write pytest tests for this Python function. One test per rule, each test name says the rule, for example test_heading_starts_a_new_passage. Use small inputs that I can read. Rules: <paste the rules from the table>. Function: <paste the function>."*
+- *"This broken version of the function survives my tests: <paste the line from the hunt>. Which test would pass on the correct code and fail on this mistake?"*
+- *"Complete this smoke test with httpx: GET URL/v1/models must list a model with id 'family-hub-assistant'; POST URL/v1/chat/completions with one user message must answer with status 200 and contain '01253 476480' in choices[0].message.content; POST with an empty messages list must give status 400. Use the function check(name, ok) for each."*
+- *"In this FastAPI function chat(), if the list messages is empty, return JSONResponse with an error message and status_code 400 before messages[-1] is used."*
 
-**Done when** `python sessions/s9/check.py` prints `SESSION DONE` (5 of 5) and step 8 left your `knowledge/` unchanged. The check works in a throw-away copy with simulated downloads, so it needs no internet and does not touch your folder.
+**Done when** `python sessions/s9/check.py` prints `SESSION DONE`: at least 8 unit tests, 6 of 6 broken versions caught, the empty message list gets 400, and your smoke test passes against the running service.
 
 ## Hints
-- Why `staging/` and not straight into `knowledge/`? If the download stops half way, the assistant would answer from half old, half new pages. A swap is two quick renames.
-- Why the golden questions and not only the rules? A website in maintenance returns pages that look fine (long text, status 200) but say nothing. Only a quality test sees that the right pages are no longer found.
-- Why the search test and not the full answer test of session 5? Answers about dates change when the timetable changes, so their expected text would fail. The page that holds the answer stays the same.
-- `PermissionError` or `FileExistsError` in `swap`: a `staging/` or `backup/` from an earlier run is still there. `refresh()` deletes `staging/` at the start; `swap` must empty `backup/` first.
-- The service answers with old data after a refresh: it loaded the index when it started. Restart it.
-- `timetable.json` from the council holds the names of the staff who edited each entry (`sys`). `save_timetable` removes them; the rule in `check_pages` makes sure they never reach `knowledge/`.
+- `ModuleNotFoundError: No module named 'checks'`: run pytest from your main folder, with `python -m pytest ...` (not just `pytest`).
+- A test fails on the real code? Read the message under the red `F`: pytest shows the values on both sides of the `assert`. Maybe your expectation is wrong, maybe you found a bug: ask.
+- The hunt says SKIP: that file is not the working version. Ask your instructor for it.
+- Smoke test: `ConnectError` means the service is not running on that port.
+- Good tests are small: one rule, one test, a clear name. When it fails, the name tells you what broke.
+- Unit tests never call the model: they must be fast and give the same result every time.
 
 ## Try at the end
-- Run `python refresh.py` twice. The second time, what is in `backup/`?
-- Set `MIN_SEARCH_SCORE = 0.99` in `config.py` and run the refresh: what does the log say? Set it back.
-- Which ERROR line would you want to see in a morning e-mail, and which WARNING lines can wait?
+- Break something on purpose in your own `checks.py` (for example remove `.lower()`), run pytest, see which test goes red, then undo it with `git checkout checks.py`.
+- Time it: how long do the unit tests take, the smoke test, and `python tests/run_tests.py`? That is why unit tests run on every change, the smoke test after every deploy, and the golden questions before a release.

@@ -1,4 +1,4 @@
-"""Session 7: logging. Coloured lines in the terminal, the main log file and a separate file for the model's reasoning.
+"""Session 8: logging. Coloured lines in the terminal, the main log file and a separate file for the model's reasoning.
 
 Use it anywhere:  from loguru import logger
                   logger.info("..."), logger.warning("..."), logger.error("..."), logger.exception("...")

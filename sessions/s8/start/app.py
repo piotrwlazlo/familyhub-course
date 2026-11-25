@@ -1,4 +1,4 @@
-"""Session 7: the Family Hub assistant as a small web service (OpenAI-compatible API), with a health check.
+"""Session 8: the Family Hub assistant as a small web service (OpenAI-compatible API), with a health check.
 
 Start:       .venv/bin/uvicorn app:app --port <your port>      (your instructor gives you a port, e.g. 8101)
 Try it:      curl localhost:<your port>/health

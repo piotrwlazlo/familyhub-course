@@ -1,6 +1,6 @@
-"""Session 8: a quick quality check of your unit tests. Do they catch broken code?
+"""Session 9: a quick quality check of your unit tests. Do they catch broken code?
 
-Run from your main folder:  python sessions/s8/hunt.py
+Run from your main folder:  python sessions/s9/hunt.py
 
 The hunt makes 6 broken versions of our functions, one at a time (each with one small, realistic mistake),
 and runs your tests (tests/test_units.py) against each one in a temporary copy. Your own files are not changed.
@@ -50,7 +50,7 @@ def copy_app(target: Path) -> None:
 
 def hunt() -> tuple[int, int, list[str]]:
     if not (APP / TESTS).exists():
-        print(f"No {TESTS} yet: copy sessions/s8/start/test_units.py to tests/ first.")
+        print(f"No {TESTS} yet: copy sessions/s9/start/test_units.py to tests/ first.")
         sys.exit(1)
     print("Your tests on the real code ...", end=" ", flush=True)
     with tempfile.TemporaryDirectory() as tmp:

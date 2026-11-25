@@ -10,9 +10,10 @@ In these labs you build the Family Hub assistant step by step: a chat assistant 
 | 4 | Rules that check every answer before anyone sees it |
 | 5 | Golden questions and a test run with a score |
 | 6 | The assistant inside Open WebUI, with conversation history |
-| 7 | Logs (INFO / WARNING / ERROR), the model's reasoning in its own file, and a health check |
-| 8 | Unit tests and a smoke test written by you, and a real bug fixed |
-| 9 | Fresh knowledge every night: download, check with the golden questions, swap and roll back |
+| 7 | Your own knowledge: download every council page from the website (`fetch_knowledge.py`), every section included |
+| 8 | Logs (INFO / WARNING / ERROR), the model's reasoning in its own file, and a health check |
+| 9 | Unit tests and a smoke test written by you, and a real bug fixed |
+| 10 | Fresh knowledge every night: download, check with the golden questions, swap and roll back |
 
 ## Folders
 

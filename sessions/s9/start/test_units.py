@@ -1,4 +1,4 @@
-"""Session 8: unit tests. Each test checks one small piece of our code, without the model, in a split second.
+"""Session 9: unit tests. Each test checks one small piece of our code, without the model, in a split second.
 
 Run from your main folder:  python -m pytest tests/test_units.py
 A test is a function whose name starts with test_. Inside it: call our code, then assert what must be true.

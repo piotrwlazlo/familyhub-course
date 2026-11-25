@@ -1,4 +1,4 @@
-"""Session 9: where the knowledge comes from. Ready to use: you do not need to change this file.
+"""Session 10: where the knowledge comes from. Ready to use: you do not need to change this file.
 
 download_text(url)          the main text of one council web page, as markdown
 download_timetable()        the family hub sessions from the council's timetable data (JSON)
