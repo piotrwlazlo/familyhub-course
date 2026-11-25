@@ -4,7 +4,7 @@
 
 **Goal:** the council's rules are kept by plain Python code, not only by asking the model nicely. Crisis words always give the 999 reply. Every answer needs a source, no advice, no personal data and no made-up phone numbers.
 
-**You start from** the session 3 version (`git checkout gold-s3` if yours does not pass its check).
+**You start from** the session 3 version (if yours does not pass its check, ask the instructor for the working version).
 
 **You get**
 - `sessions/s4/start/checks.py`: copy to the main folder. Ready: the phone number pattern `PHONE` and `digits()`

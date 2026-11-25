@@ -4,7 +4,7 @@
 
 **Goal:** the assistant searches all 116 pages, reads only the 5 best passages and shows links to its sources. Search = Chroma (finds passages by meaning) + keyword search (BM25), merged into one list.
 
-**You start from** the session 2 version (`git checkout gold-s2` if yours does not pass its check).
+**You start from** the session 2 version (if yours does not pass its check, ask the instructor for the working version).
 
 **You get**
 - `sessions/s3/start/config_addition.py`: four new settings (`INDEX_DIR`, `CHUNK_CHARS`, `TOP_K`, `WHOLE_PAGES`); paste them into `config.py`

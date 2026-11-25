@@ -4,7 +4,7 @@
 
 **Goal:** every change is checked with numbers, not by feel. You write golden questions that parents really ask, a program asks them all and writes a report with a score.
 
-**You start from** the session 4 version (`git checkout gold-s4` if yours does not pass its check).
+**You start from** the session 4 version (if yours does not pass its check, ask the instructor for the working version).
 
 **You get**
 - `sessions/s5/start/golden.json`: 89 golden questions we wrote. Copy to `tests/golden.json`

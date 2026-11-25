@@ -1,76 +1,66 @@
-# Session 8: Tests before every release
+# Session 8: The assistant tells us what happens
 
 *Work in VS Code, in your own copy: see `sessions/HOW_TO_WORK.md`.*
 
-**Goal:** the assistant gets the tests a production service needs. **Unit tests** check small pieces of our own code without the model, in a split second, on every change. A **smoke test** checks the running service in a few seconds, right after it is started or deployed. On the way you find and fix a real bug in the web service.
+**Goal:** today, if the model is down, a resident just gets the polite fallback reply and nobody knows. After this session every question leaves a line in a log file, with a level that says how serious it is: **INFO** (normal), **WARNING** (it worked, but someone should look), **ERROR** (it failed for someone). What the model returned goes to a separate file. A health check says if the assistant is ready.
 
-**You start from** the session 7 version (if yours does not pass its check, ask the instructor for the working version). The hunt needs the working versions of `search.py`, `checks.py` and `app.py`.
+**You start from** your own session 6 version if `python sessions/s6/check.py` prints SESSION DONE (session 7 is not needed for this session). If not: `git stash -u`, `git fetch --tags`, `git checkout -b work gold-s6` (see `sessions/HOW_TO_WORK.md`).
 
-**Before you start (once, the GB10 admin):** `sudo /srv/familyhub-course/venv/bin/pip install pytest`
+**Before you start (once, the instructor):** install the new packages into the Python environment the team uses: `pip install loguru fastapi uvicorn httpx`
 
 **You get**
-- `sessions/s8/start/test_units.py`: copy to `tests/`. It has one example test.
-- `sessions/s8/start/smoke_test.py`: copy to `tests/`. It has the first of four checks.
-- `sessions/s8/hunt.py`: a quick quality check of your unit tests (ready, you only run it)
+- `sessions/s8/start/logs.py`: copy to the main folder. Ready: the line formats, `is_reasoning`, `not_reasoning`, `new_request_id`
+- `sessions/s8/start/app.py`: copy to the main folder. Ready: the assistant as a web service (`/v1/chat/completions`)
+- `sessions/s8/start/config_addition.py`: `LOG_DIR` and `LOG_LEVEL`; paste at the end of `config.py`
 
-**How a test looks**
-```python
-from checks import is_crisis
+**You build** (keep these names, the check uses them)
 
-def test_crisis_words_are_found():                     # the name starts with test_ and says what must be true
-    assert is_crisis("I am in danger at home right now")   # assert: this must be True, or the test fails
-```
-Run all tests: `python -m pytest tests/test_units.py` (green dots = pass, `F` = fail).
-
-**You build**
-- `tests/test_units.py`: at least 8 unit tests. What the functions must do:
-
-| Function (file) | Rules to test |
+| Where | What |
 |---|---|
-| `make_chunks(text, max_chars)` (`search.py`) | a heading (`# ...`) starts a new passage; no passage is longer than `max_chars`; the last passage of the text is kept |
-| `fuse(list1, list2)` (`search.py`) | an id that is high in both lists comes first; both lists count, not only the first |
-| `words(text)` (`search.py`) | lower case words, without stop words like *the*, *is*, *when* |
-| `is_crisis(question)` (`checks.py`) | finds crisis words, also in CAPITAL letters; a normal question is no crisis |
-| `unknown_phone_numbers(answer, passages)` (`checks.py`) | a made-up number is reported; a real number is not, also when written with different spaces |
-| `check_answer(result, passages)` (`checks.py`) | a good answer passes (`None`); no sources, advice or personal data gives `config.FALLBACK_REPLY` |
-| `as_text(content)` (`app.py`) | a plain text stays the same; a message sent in parts (`[{"type": "text", "text": "Hello"}, ...]`) becomes one text |
+| `logs.py`: `setup_logging()` | Three outputs: the terminal (coloured), `logs/familyhub.log`, `logs/reasoning.log` |
+| `logs.py`: `log_reasoning(step, message)` | One line in `logs/reasoning.log`: the step, the model's reasoning (if any) and the form it filled in |
+| `bot.py`: top of the file | `import logs` and `from loguru import logger`; call `logs.setup_logging()` once, after `client = ...` |
+| `analysis.py` and `bot.py`: `analyse`, `write_answer` | After the model call: `logs.log_reasoning(...)`. In the `except` part: `logger.exception(...)` |
+| `bot.py`: `answer(question, history)` | All of it inside `with logger.contextualize(request_id=logs.new_request_id()):`, and one log line before every `return` (table below) |
+| `checks.py`: `check_answer` | `logger.warning(...)` that says which rule blocked the answer |
+| `app.py`: `health()` and `model_ok()` | `/health` answers 200 if the model and the search index are ready, otherwise 503 |
 
-- `app.py`: `chat()` answers 400 for an empty message list (today it crashes)
-- `tests/smoke_test.py`: four checks against the running service: health, model list, one real question, empty message list
+**Which level for which event in `answer()`**
+
+| Event | Level | Example message |
+|---|---|---|
+| Crisis words in the question, or the model marked it as a crisis | WARNING | `crisis reply sent` |
+| No question analysis (the model failed) | ERROR | `no question analysis: fallback reply sent` |
+| Off-topic question | INFO | `off-topic question` |
+| No answer from the model (the model failed) | ERROR | `no answer from the model: fallback reply sent` |
+| Answered | INFO | `answered | kind=time | pages=[...] | 4.2 s` |
 
 ## Steps
-1. Copy the starter files: `cp sessions/s8/start/test_units.py sessions/s8/start/smoke_test.py tests/` and run the unit tests: `python -m pytest tests/test_units.py` (1 passed).
-2. Write unit tests for `is_crisis`, `unknown_phone_numbers` and `check_answer`: these are our safety rules. For `check_answer` you need an answer form: `bot.Answer(answer="Call 01253 476480.", found=True, sources=[1], contains_advice=False, contains_personal_data=False)`. Change one field per test. Run pytest after each new test.
-3. Write unit tests for `make_chunks` and `fuse`. Write the small texts and lists yourself, e.g. `fuse(["a", "b"], ["c", "b"])`.
-4. Quick quality check: `python sessions/s8/hunt.py`. If a line says **SURVIVES**, add a test for that rule.
-5. **Find a real bug:** add this test. It fails today, because the service crashes on an empty message list. Then fix `chat()` in `app.py` so it answers with status 400 instead, and run pytest again.
-   ```python
-   from fastapi.testclient import TestClient
-   import app
-
-   def test_empty_message_list_gives_400():
-       response = TestClient(app.app).post("/v1/chat/completions", json={"messages": []})
-       assert response.status_code == 400
-   ```
-6. **Smoke test:** complete the three TODO checks in `tests/smoke_test.py`. Start your service (`.venv/bin/uvicorn app:app --port <your port>`) and in a second terminal run `python tests/smoke_test.py http://localhost:<your port>`. Stop the service, run the smoke test again: what do you see?
-7. Run the check: `python sessions/s8/check.py` (it starts the service by itself), then the check of session 7.
+1. Copy the starter files to the main folder: `cp sessions/s8/start/logs.py sessions/s8/start/app.py .` and paste `config_addition.py` at the end of `config.py`.
+2. Write `setup_logging`. Add the three lines at the top of `bot.py`. Try it: `python bot.py "When is Babbling Babies?"` You should see no new lines yet, but the folder `logs/` appears.
+3. Add the log lines to `answer()` (see the table). Ask again: now you see coloured lines in the terminal, and the same lines in `logs/familyhub.log`.
+4. Write `log_reasoning` and call it in `analyse` and `write_answer`. Open `logs/reasoning.log`: what did the model fill in for your question?
+5. Add `logger.exception` to both `except` parts, and `logger.warning` to `check_answer`.
+6. Write `model_ok` and `health`. Start the service on your own port and ask it: `.venv/bin/uvicorn app:app --port <your port>`, then in a second terminal `curl localhost:<your port>/health`
+7. Run the check: `python sessions/s8/check.py`, then the checks of sessions 4 and 6.
 
 ## Prompts for the AI assistant
-- *"Write pytest tests for this Python function. One test per rule, each test name says the rule, for example test_heading_starts_a_new_passage. Use small inputs that I can read. Rules: <paste the rules from the table>. Function: <paste the function>."*
-- *"This broken version of the function survives my tests: <paste the line from the hunt>. Which test would pass on the correct code and fail on this mistake?"*
-- *"Complete this smoke test with httpx: GET URL/v1/models must list a model with id 'family-hub-assistant'; POST URL/v1/chat/completions with one user message must answer with status 200 and contain '01253 476480' in choices[0].message.content; POST with an empty messages list must give status 400. Use the function check(name, ok) for each."*
-- *"In this FastAPI function chat(), if the list messages is empty, return JSONResponse with an error message and status_code 400 before messages[-1] is used."*
+- *"Complete setup_logging in logs.py with loguru: add three outputs with logger.add and append each returned id to our_outputs: sys.stderr with level config.LOG_LEVEL, format TERMINAL_FORMAT, colorize=True, filter=not_reasoning; the file config.LOG_DIR / 'familyhub.log' with level config.LOG_LEVEL, format FILE_FORMAT, filter=not_reasoning, rotation='10 MB', retention='14 days', encoding='utf-8'; the file config.LOG_DIR / 'reasoning.log' with level 'DEBUG', format FILE_FORMAT, filter=is_reasoning, retention='3 days', encoding='utf-8'."*
+- *"Complete log_reasoning(step, message): write one line with logger.bind(reasoning=True).debug that contains step, reasoning (or '(the model returned no reasoning)' if it is None) and message.content."*
+- *"In this answer() function, put the whole body inside `with logger.contextualize(request_id=logs.new_request_id()):` and add a loguru log line before every return: WARNING for the crisis replies, ERROR when the model failed (form is None or result is None), INFO for off-topic, and INFO for an answered question with form.kind, the pages used and the seconds since the start (time.perf_counter())."*
+- *"Write a FastAPI endpoint GET /health: checks = {'model': model_ok(), 'index': search.collection.count() > 0}. If all checks are True return JSONResponse({'status': 'ok', **checks}) with status 200, otherwise log logger.error with the checks and return status 'error' with status code 503."*
 
-**Done when** `python sessions/s8/check.py` prints `SESSION DONE`: at least 8 unit tests, 6 of 6 broken versions caught, the empty message list gets 400, and your smoke test passes against the running service.
+**Done when** `python sessions/s8/check.py` prints `SESSION DONE` (10 of 10), and the checks of sessions 4 and 6 still pass.
 
 ## Hints
-- `ModuleNotFoundError: No module named 'checks'`: run pytest from your main folder, with `python -m pytest ...` (not just `pytest`).
-- A test fails on the real code? Read the message under the red `F`: pytest shows the values on both sides of the `assert`. Maybe your expectation is wrong, maybe you found a bug: ask.
-- The hunt says SKIP: that file is not the working version. Ask your instructor for it.
-- Smoke test: `ConnectError` means the service is not running on that port.
-- Good tests are small: one rule, one test, a clear name. When it fails, the name tells you what broke.
-- Unit tests never call the model: they must be fast and give the same result every time.
+- Error `KeyError: 'request_id'`: `setup_logging` was not run, or a line was written before it. Call `logs.setup_logging()` at the top of `bot.py`.
+- Every line appears twice in the terminal: run `setup_logging` only once, and keep the ready part at its top.
+- No `logs/reasoning.log`: did you use `logger.bind(reasoning=True)`? Without it the line goes to the main log.
+- `logger.exception` writes the error and where it happened (the traceback): that is what `except Exception: return None` was hiding.
+- Logs are personal data too: the search query in `reasoning.log` repeats what the person asked. That is why this file is kept only 3 days.
+- Port already in use: someone else has that port. Use the one your instructor gave you.
 
 ## Try at the end
-- Break something on purpose in your own `checks.py` (for example remove `.lower()`), run pytest, see which test goes red, then undo it with `git checkout checks.py`.
-- Time it: how long do the unit tests take, the smoke test, and `python tests/run_tests.py`? That is why unit tests run on every change, the smoke test after every deploy, and the golden questions before a release.
+- Pretend the model is down: in `config.py` set `MODEL_URL = "http://localhost:9/v1"`, ask a question, then read `logs/familyhub.log`. Can you tell from the log what went wrong? Put the old address back.
+- Set `LOG_LEVEL = "DEBUG"`: what changes?
+- Add `serialize=True` to the `familyhub.log` output and look at one line: this is the JSON format a central log platform wants. Then remove it again.
