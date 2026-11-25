@@ -12,6 +12,7 @@ In these labs you build the Family Hub assistant step by step: a chat assistant 
 | 6 | The assistant inside Open WebUI, with conversation history |
 | 7 | Logs (INFO / WARNING / ERROR), the model's reasoning in its own file, and a health check |
 | 8 | Unit tests and a smoke test written by you, and a real bug fixed |
+| 9 | Fresh knowledge every night: download, check with the golden questions, swap and roll back |
 
 ## Folders
 
