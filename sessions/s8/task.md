@@ -4,7 +4,7 @@
 
 **Goal:** today, if the model is down, a resident just gets the polite fallback reply and nobody knows. After this session every question leaves a line in a log file, with a level that says how serious it is: **INFO** (normal), **WARNING** (it worked, but someone should look), **ERROR** (it failed for someone). What the model returned goes to a separate file. A health check says if the assistant is ready.
 
-**You start from** the session 7 version (if yours does not pass its check, ask the instructor for the working version).
+**You start from** your own session 6 version if `python sessions/s6/check.py` prints SESSION DONE (session 7 is not needed for this session). If not: `git stash -u`, `git fetch --tags`, `git checkout -b work gold-s6` (see `sessions/HOW_TO_WORK.md`).
 
 **Before you start (once, the instructor):** install the new packages into the Python environment the team uses: `pip install loguru fastapi uvicorn httpx`
 
