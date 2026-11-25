@@ -1,7 +1,7 @@
 # Family hub activities and what they offer
 URL: https://www.blackpool.gov.uk/Residents/Education-and-schools/Early-years-and-childcare/Family-Hubs-and-Start-for-Life/Family-Hubs/Family-Hubs-timetable.aspx
 
-Free activities, groups and drop-ins at Blackpool family hubs. Timetable valid as of 21 November 2026. Sessions that have already ended are not listed. Addresses and phone numbers of the hubs are on the page "Family hub locations and timetable".
+Free activities, groups and drop-ins at Blackpool family hubs. Timetable valid as of 25 November 2026. Sessions that have already ended are not listed. Addresses and phone numbers of the hubs are on the page "Family hub locations and timetable".
 
 ## After School Fun
 
@@ -65,8 +65,6 @@ Advocates can help young people get the right support, make choices, and feel mo
 Visit one of the monthly drop-in sessions to meet the team and find out how they can help.
 
 Where and when:
-- Central Family Hub, 9.30am to 11am, Mon 23 Nov 2026
-- North Family Hub, 12.30pm to 2.30pm, Tue 24 Nov 2026
 - South Family Hub, 9.30am to 11am, Wed 25 Nov 2026
 
 ## Chatting with Children
@@ -157,17 +155,6 @@ Where and when:
 - Central Family Hub, 10.30am to 12pm, Sat 12 Dec 2026
 - South Family Hub, 10.30am to 12pm, Sat 19 Dec 2026
 
-## Family Small World Session
-
-Come along and explore together as a family, letting your imagination run wild with a variety of small world play activities. From roaring dinosaurs to under-the-sea adventures and beyond, there’s so much to discover and create!
-
-It’s a fun and engaging way to spark creativity, encourage storytelling, and enjoy some quality family time.
-
-Suitable for children aged up to 5 years
-
-Where and when:
-- South Family Hub, 10.30am to 12pm, Sat 21 Nov 2026
-
 ## First stages of pregnancy
 
 Join a supportive session for parents in early pregnancy, delivered by midwifery health trainers. Get helpful advice, guidance, and reassurance in a friendly setting, with plenty of opportunities to learn, ask questions, and feel more confident as you begin your parenting journey.
@@ -235,7 +222,6 @@ We meet at 9:45am at Stanley Park Visitor Centre - no need to book, just come al
 For more information, you can text our Parent Carer Coordinator, Hannah, on 07385 002813.
 
 Where and when:
-- Watson Road Park, starts 10am, Tue 24 Nov 2026
 - Stanley Park Visitor Centre, starts 9.45am, Fri 11 Dec 2026
 
 ## Neonatal Journey Coffee Morning

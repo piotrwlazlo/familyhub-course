@@ -1,54 +1,50 @@
-# Family Hub assistant: course repository
+# Family Hub assistant: course labs
 
-The team builds the Family Hub assistant step by step, in sessions 1 to 6. Every session has a task card, starter files and a check. The tags `gold-s1` ... `gold-s6` are the working version after each session.
+In these labs you build the Family Hub assistant step by step: a chat assistant that answers questions from the council's Family Hub web pages, shows its sources and keeps to clear safety rules. It runs on a local AI model and is used through Open WebUI.
+
+| Session | You build |
+|---|---|
+| 1 | The assistant reads the knowledge files and knows today's date |
+| 2 | The model fills in a short form about the question (structured output) |
+| 3 | Search by meaning (Chroma) and by keywords, answers with source links |
+| 4 | Rules that check every answer before anyone sees it |
+| 5 | Golden questions and a test run with a score |
+| 6 | The assistant inside Open WebUI, with conversation history |
+| 7 | Your own knowledge: download every council page from the website (`fetch_knowledge.py`), every section included |
+| 8 | Logs (INFO / WARNING / ERROR), the model's reasoning in its own file, and a health check |
+| 9 | Unit tests and a smoke test written by you, and a real bug fixed |
+| 10 | Fresh knowledge every night: download, check with the golden questions, swap and roll back |
 
 ## Folders
 
 | Path | What |
 |---|---|
-| `knowledge/` | The council web pages as text (116 `.md` files), `timetable.json`, `hub-contacts.md` |
-| `config.py` | All settings: model address, files, search settings, fixed replies |
-| `bot.py` | The assistant: question in, answer out |
-| `analysis.py` | Session 2: the form about the question (structured output) |
-| `search.py` | Session 3: passages in Chroma + keyword search (BM25) |
-| `checks.py` | Session 4: our rules check every answer |
-| `tests/` | Session 5: golden questions and the test run with its report |
-| `familyhub_pipe.py`, `deploy_openwebui.sh` | Session 6: the assistant inside Open WebUI |
-| `app.py`, `run_app.sh` | For the instructor: the finished assistant as a server on port 8100 (`bash run_app.sh`), for Open WebUI as a connection |
-| `sessions/sN/` | `task.md` (task card), `start/` (starter files), `check.py` (done when it says SESSION DONE) |
-| `sessions/golden_questions.json` | Our 91 golden questions (used by the session 3 check) |
+| `config.py` | Settings: model address, files, later search settings and fixed replies |
+| `knowledge/` | The council web pages as text files (116), the timetable export and the pages made from it, hub contacts |
+| `sessions/sN/task.md` | The task card for session N: what to build, step by step |
+| `sessions/sN/start/` | Starter files for session N |
+| `sessions/sN/check.py` | Run it to see if you are done: it prints `SESSION DONE` |
+| `sessions/golden_questions.json` | Golden questions with the facts the answers must contain |
+| `familyhub_pipe.py`, `deploy_openwebui.sh` | Session 6: the assistant inside Open WebUI (deploy: instructor only) |
 
-## Start (once, on the GB10)
+## How the team works on the GB10
 
-The course package `familyhub-course.tar.gz` holds this repository and two scripts:
+- Every participant has their own folder in the team folder: `aidevteam/familyhub-<name>`, a `git clone` of this repository. Each person works only in their own folder (see `sessions/HOW_TO_WORK.md`).
+- Starting session 7: whoever passes `python sessions/s6/check.py` goes on with their own code; everyone else runs `git stash -u`, `git fetch --tags`, `git checkout -b work gold-s6`.
+- New sessions: the instructor adds them to every folder, changing only the session files:
+  ```bash
+  cd aidevteam
+  for d in familyhub-*; do
+    git -C "$d" fetch origin --tags && git -C "$d" checkout origin/main -- sessions README.md deploy_openwebui.sh
+  done
+  ```
+- The model: Gemma 4 26B served by vLLM on port 8004 (`config.MODEL_URL`). From session 3 on, each person builds their own search index once: `python search.py --build`
+- Open WebUI is shared by the whole team. Only the instructor updates the Family Hub assistant there, from the instructor's own folder, with a version that passes all session checks: `bash deploy_openwebui.sh --instructor`. Participants never run this script: it replaces the assistant for everyone.
 
-1. One person with sudo rights (for example the GB10 admin), once:
-   `tar xzf familyhub-course.tar.gz && cd familyhub-course && sudo bash install_shared.sh`
-   This makes `/srv/familyhub-course`: the code package and one Python environment, read-only for everyone.
-2. Every participant, as themselves, once (seconds): `bash /srv/familyhub-course/get_my_copy.sh`
-   This makes `~/familyhub`, their own copy on their own branch, starting at `gold-s1`. See `sessions/HOW_TO_WORK.md`.
+## Before session 1
 
-The model: Gemma 4 26B served by vLLM on port 8004 (`config.MODEL_URL`).
-From session 3 on, each person builds their own search index once: `python search.py --build`
-Session 6 (`deploy_openwebui.sh`) needs rights to run `docker`: one person with those rights deploys the team's version.
+1. Get your own copy of this repository and open the folder in VS Code (see `sessions/HOW_TO_WORK.md`).
+2. Create the Python environment: `python3 -m venv .venv && .venv/bin/pip install openai pydantic chromadb rank_bm25 ipykernel`
+3. Check `MODEL_URL` and `MODEL` in `config.py`: they point to the AI model on your GB10.
 
-## Using the golden state
-
-```bash
-git tag                          # gold-s1 ... gold-s6
-git checkout gold-s3             # the whole working version after session 3
-git checkout gold-s3 -- search.py   # only one file from it
-python sessions/s3/check.py      # every session has its own check
-```
-Each session starts from the golden state of the session before, so everyone starts from code that works.
-
-## Results of the golden state (GB10-1, Gemma 4 26B, 24 November 2026)
-
-| Check | Result |
-|---|---|
-| Session 1 | 6/6 |
-| Session 2 | 12/12 |
-| Session 1 | search finds the right page for 74/77 golden questions (96%), 3/3 answers |
-| Session 2 | 4 rules + 10/10 tricky questions |
-| Session 3 | 90 to 91% on 99 golden questions (the first version of the assistant: 81%) |
-| Session 4 | 7/7, and tested inside the Open WebUI container |
+Then open `sessions/s1/task.md` and start.

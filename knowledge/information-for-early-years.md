@@ -35,14 +35,6 @@ Browser does not support script.
 
 Browser does not support script.
 
-Browser does not support script.
-
-Browser does not support script.
-
-Browser does not support script.
-
-Browser does not support script.
-
 There are no results that match your criteria.
 
 Browser does not support script.

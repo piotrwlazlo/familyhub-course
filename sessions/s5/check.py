@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 APP = Path(__file__).resolve().parent.parent.parent
-TARGET = 80          # the gold version of session 4 scores about 86% on our questions
+TARGET = 80          # the reference version scores about 86% on these questions
 
 golden = json.loads((APP / "tests" / "golden.json").read_text(encoding="utf-8"))
 own = [q for q in golden if q["category"] == "team"]

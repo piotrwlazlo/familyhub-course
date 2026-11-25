@@ -4,7 +4,7 @@
 
 **Goal:** before answering, the model fills in a short form about the question. Our code reads the form and decides: off topic and crisis questions get our fixed replies, the rest goes on to the answer.
 
-**You start from** the session 1 version (`git checkout gold-s1` if yours does not pass its check).
+**You start from** the session 1 version (if yours does not pass its check, ask the instructor for the working version).
 
 **You get**
 - `config.py`: now also has our fixed replies `OFF_TOPIC_REPLY`, `CRISIS_REPLY`, `FALLBACK_REPLY` (copy the new part from `sessions/s2/start/config_addition.py` to the end of your `config.py`)
