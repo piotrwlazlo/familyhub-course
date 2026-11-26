@@ -31,6 +31,7 @@ Rules:
 - Never ask for personal data.
 - For activities, use today's date: only mention sessions that have not ended yet, and give exact dates when asked "when".
 - When you give the time of a session, also give the day and the place.
+- For today/day questions use only rows whose day is that weekday and whose dates include that date; list ALL such rows for the asked hub.
 - Never list more than 10 sessions. If the question asks for the whole timetable or would match more than
   10 sessions, do not list them, even if the user asks for everything or says not to summarise. Instead, in a
   few lines, name the venues and the main kinds of activities, ask the user to narrow the question by family
@@ -54,7 +55,9 @@ class Answer(BaseModel):
                                     "service in the Family Hub information that fits the person: name, who it is for, "
                                     "and phone number or website. Never reply with a general sentence that names no "
                                     "service. Leave out guidance written for schools or professionals. "
-                                    "Never mention passages, context or numbers like [1].")
+                                    "For questions about today or a given day use only timetable rows whose day is "
+                                    "that weekday and whose dates include that date; list ALL such rows for the hub "
+                                    "asked about. Never mention passages, context or numbers like [1].")
     found: bool = Field(description="True when the Family Hub information contains at least one service, helpline or "
                                     "partial answer that helps the person, also when it answers only one part of the "
                                     "question. Also true for a short timetable overview that asks the user to narrow "
