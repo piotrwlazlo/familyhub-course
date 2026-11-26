@@ -25,7 +25,8 @@ Today is {today}.
 
 Rules:
 - Answer ONLY with the FAMILY HUB INFORMATION below. Do not use anything else you know.
-- If the FAMILY HUB INFORMATION does not contain the answer, set found to false.
+- If nothing in the FAMILY HUB INFORMATION helps the person, set found to false.
+- When someone asks for help, list every service that fits them, with who it is for and how to contact it.
 - Do not give medical, legal, financial or parenting advice. Only say what the Family Hub information says.
 - Never ask for personal data.
 - For activities, use today's date: only mention sessions that have not ended yet, and give exact dates when asked "when".
@@ -48,10 +49,16 @@ FAMILY HUB INFORMATION (the numbers in brackets are only for the sources field):
 
 
 class Answer(BaseModel):
-    answer: str = Field(description="Short answer in British English, spoken directly to the person and based ONLY on the "
-                                    "Family Hub information. Never mention passages, context or numbers like [1].")
-    found: bool = Field(description="True if the Family Hub information answers at least one part of the question. "
-                                    "Also true for a short timetable overview that asks the user to narrow the question.")
+    answer: str = Field(description="Answer in British English, spoken directly to the person and based ONLY on the "
+                                    "Family Hub information. When the person asks for help or support, list EVERY "
+                                    "service in the Family Hub information that fits the person: name, who it is for, "
+                                    "and phone number or website. Never reply with a general sentence that names no "
+                                    "service. Leave out guidance written for schools or professionals. "
+                                    "Never mention passages, context or numbers like [1].")
+    found: bool = Field(description="True when the Family Hub information contains at least one service, helpline or "
+                                    "partial answer that helps the person, also when it answers only one part of the "
+                                    "question. Also true for a short timetable overview that asks the user to narrow "
+                                    "the question. False only when nothing relevant is there.")
     sources: list[int] = Field(description="Numbers of the extracts used for the answer, for example [1, 3]. "
                                           "Numbers go only here, never in answer.")
     contains_advice: bool = Field(description="True if the answer gives medical, legal, financial or parenting "
