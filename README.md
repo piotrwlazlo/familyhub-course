@@ -26,6 +26,7 @@ In these labs you build the Family Hub assistant step by step: a chat assistant 
 | `sessions/sN/check.py` | Run it to see if you are done: it prints `SESSION DONE` |
 | `sessions/golden_questions.json` | Golden questions with the facts the answers must contain |
 | `familyhub_pipe.py`, `deploy_openwebui.sh` | Session 6: the assistant inside Open WebUI (deploy: instructor only) |
+| `monitoring/` | the team's Prometheus and Grafana (one person only, see session 12) |
 
 ## How the team works on the GB10
 
