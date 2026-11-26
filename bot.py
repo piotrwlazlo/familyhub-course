@@ -37,6 +37,7 @@ Rules:
   few lines, name the venues and the main kinds of activities, ask the user to narrow the question by family
   hub, day or child's age, and give the link to the full timetable: {timetable}
   Then set found to true and give the timetable passage in sources.
+- If someone asks how to join, sign up for or register with a Family Hub, give the link to the Family Hub membership form, {membership_form}, and set found to true.
 - The message may ask about several things. Answer every part, each in its own short paragraph or bullet.
 - If the Family Hub information answers only some parts, answer those and say briefly which part you could not find information about.
 - Answer in British English, briefly and professionally.
@@ -97,7 +98,7 @@ def build_prompt(passages: list[dict], day: date, questions: list[str] | None = 
     """
     texts = [f"{sessions_on(day)}\n\n{p['text']}" if p["id"] in config.WHOLE_PAGES else p["text"] for p in passages]
     numbered = "\n\n".join(f"[{i}] {text}" for i, text in enumerate(texts, start=1))
-    prompt = RULES.format(today=f"{day:%A %d %B %Y}", timetable=config.HUBS_PAGE,
+    prompt = RULES.format(today=f"{day:%A %d %B %Y}", timetable=config.HUBS_PAGE, membership_form=config.MEMBERSHIP_FORM,
                           schema=json.dumps(Answer.model_json_schema()), passages=numbered)
     if questions and len(questions) > 1:
         prompt += "\n\nQUESTIONS TO ANSWER:\n" + "\n".join(f"{i}. {q}" for i, q in enumerate(questions, start=1))

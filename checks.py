@@ -45,7 +45,7 @@ def check_answer(result, passages: list[dict]) -> str | None:
     if not result.found or not result.answer.strip():
         logger.warning("answer blocked: not found in the passages")
         return config.FALLBACK_REPLY
-    if not result.sources:
+    if not result.sources and config.MEMBERSHIP_FORM not in result.answer:   # the membership form link needs no sources
         logger.warning("answer blocked: no sources")
         return config.FALLBACK_REPLY
     if result.contains_advice or result.contains_personal_data:

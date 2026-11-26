@@ -18,7 +18,7 @@ import config
 import timetable
 
 START = ("https://www.blackpool.gov.uk/residents/education-and-schools/early-years-and-childcare/"
-         "family-hubs-and-best-start-for-life/family-hubs/blackpool-family-hubs")
+         "family-hubs-and-best-start-for-life/")
 EXTRA_PAGES = [
     "https://www.blackpool.gov.uk/residents/education-and-schools/early-years-and-childcare/"
     "family-hubs-and-best-start-for-life/family-hubs-and-best-start-in-life",
@@ -27,7 +27,7 @@ EXTRA_PAGES = [
 ]
 # Path prefixes (lower case) the crawler follows
 SECTIONS = [
-    "/residents/education-and-schools/early-years-and-childcare/family-hubs-and-best-start-for-life/family-hubs/",
+    "/residents/education-and-schools/early-years-and-childcare/family-hubs-and-best-start-for-life/",
     "/residents/education-and-schools/early-years-and-childcare/family-hubs-and-start-for-life/family-hubs/",
     "/residents/education-and-schools/local-offer/",
 ]
