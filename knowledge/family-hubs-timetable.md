@@ -10,12 +10,12 @@ URL: https://www.blackpool.gov.uk/Residents/Education-and-schools/Early-years-an
 | South Family Hub \[within Palatine Leisure Centre\] | 207 St Anne's Road, Blackpool FY4 2AP | 01253 476550 |
 | Revoe Children's Centre \[exterior of Revoe Learning Academy\] | Wyre Grove, Blackpool, FY1 5HP | 01253 798016 |
 
-Other venues: Blackpool and The Fylde College (Bispham) (Ashfield Road, FY2 0HB); Stanley Park Visitor Centre (Stanley Park Close, FY3 9TR); Watson Road Park (Watson Road, FY4 4DA).
+Other venues: Blackpool and The Fylde College (Bispham) (Ashfield Road, FY2 0HB); Stanley Park Visitor Centre (Stanley Park Close, FY3 9TR).
 
 ## Activities timetable
 
 We have put together a timetable of activities, sessions and events for families across our three Blackpool family hubs and other shared spaces. This timetable covers the north, central and south areas of Blackpool.
-Timetable valid as of 21 November 2026. Sessions that have already ended are not listed. For a description of each activity see the page "Family hub activities and what they offer".
+Timetable valid as of 25 November 2026. Sessions that have already ended are not listed. For a description of each activity see the page "Family hub activities and what they offer".
 
 | Activity | Venue | Day | Time | Dates | Term time only | Booking |
 |---|---|---|---|---|---|---|
@@ -29,8 +29,6 @@ Timetable valid as of 21 November 2026. Sessions that have already ended are not
 | Babbling Babies | Revoe Children's Centre | Thursday | 1pm to 2pm | every Thursday, 10 Sep – 17 Dec 2026 | Yes | – |
 | Babbling Babies | South Family Hub | Friday | 10am to 11am | every Friday, 11 Sep – 18 Dec 2026 | Yes | – |
 | Birth registrations | North Family Hub | Monday | 9am to 3.30pm | every Monday, 7 Sep – 14 Dec 2026 | No | https://bit.ly/BirthRegistrationsBlackpool |
-| Blackpool Children and Young Person's Advocacy drop-in | Central Family Hub | Monday | 9.30am to 11am | Mon 23 Nov 2026 | No | – |
-| Blackpool Children and Young Person's Advocacy drop-in | North Family Hub | Tuesday | 12.30pm to 2.30pm | Tue 24 Nov 2026 | No | – |
 | Blackpool Children and Young Person's Advocacy drop-in | South Family Hub | Wednesday | 9.30am to 11am | Wed 25 Nov 2026 | No | – |
 | Chatting with Children | Revoe Children's Centre | Monday | 1pm to 2.15pm | every Monday, 7 Sep – 14 Dec 2026 | Yes | – |
 | Chatting with Children | North Family Hub | Tuesday | 10am to 11.15am | every Tuesday, 8 Sep – 15 Dec 2026 | Yes | – |
@@ -53,7 +51,6 @@ Timetable valid as of 21 November 2026. Sessions that have already ended are not
 | Family Christmas Fun | North Family Hub | Saturday | 10.30am to 12pm | Sat 5 Dec 2026 | No | – |
 | Family Christmas Fun | Central Family Hub | Saturday | 10.30am to 12pm | Sat 12 Dec 2026 | No | – |
 | Family Christmas Fun | South Family Hub | Saturday | 10.30am to 12pm | Sat 19 Dec 2026 | No | – |
-| Family Small World Session | South Family Hub | Saturday | 10.30am to 12pm | Sat 21 Nov 2026 | No | – |
 | First stages of pregnancy | Revoe Children's Centre | Tuesday | 10am to 12pm | every Tuesday, 8 Sep – 15 Dec 2026 | No | https://www.blackpoolteachinghospitals.nhs.uk/services/maternity/maternity-self-referral |
 | First stages of pregnancy | North Family Hub | Wednesday | 2pm to 4pm | every Wednesday, 9 Sep – 16 Dec 2026 | No | https://www.blackpoolteachinghospitals.nhs.uk/services/maternity/maternity-self-referral |
 | HENRY Bears Stay and Play | North Family Hub | Tuesday | 1pm to 2.30pm | every Tuesday, 8 Sep – 15 Dec 2026 | No | – |
@@ -64,7 +61,6 @@ Timetable valid as of 21 November 2026. Sessions that have already ended are not
 | Midwifery Clinic - Central Family Hub | Central Family Hub | Monday, Tuesday, Wednesday, Thursday, Friday | 9am to 5pm | every Monday, Tuesday, Wednesday, Thursday, Friday, 7 Sep – 18 Dec 2026 | No | – |
 | Midwifery Clinic - North Family Hub | North Family Hub | Monday, Tuesday, Wednesday, Thursday, Friday | 9am to 5pm | every Monday, Tuesday, Wednesday, Thursday, Friday, 7 Sep – 18 Dec 2026 | No | – |
 | Midwifery Clinic - South Family Hub | South Family Hub | Monday, Tuesday, Wednesday, Thursday, Friday | 9am to 5pm | every Monday, Tuesday, Wednesday, Thursday, Friday, 7 Sep – 18 Dec 2026 | No | – |
-| Mind Your Step Walk | Watson Road Park | Tuesday | starts 10am | Tue 24 Nov 2026 | No | – |
 | Mind Your Step Walk | Stanley Park Visitor Centre | Friday | starts 9.45am | Fri 11 Dec 2026 | No | – |
 | Neonatal Journey Coffee Morning | Revoe Children's Centre | Tuesday | 12.45pm to 2.15pm | Tue 1 Dec 2026 | No | – |
 | Neuro Ninjas (0 to 13 years) | North Family Hub | Thursday | 4.30pm to 5.30pm | every Thursday, 10 Sep – 17 Dec 2026 | No | – |

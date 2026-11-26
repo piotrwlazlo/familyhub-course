@@ -35,14 +35,6 @@ Browser does not support script.
 
 Browser does not support script.
 
-Browser does not support script.
-
-Browser does not support script.
-
-Browser does not support script.
-
-Browser does not support script.
-
 How to check a hearing aid
 
 There are no results that match your criteria.

@@ -1,7 +1,7 @@
 # Blackpool family hubs
-URL: https://www.blackpool.gov.uk/Residents/Education-and-schools/Early-years-and-childcare/Family-Hubs-and-Start-for-Life/Family-Hubs/Blackpool-Family-Hubs.aspx
+URL: https://www.blackpool.gov.uk/residents/education-and-schools/early-years-and-childcare/family-hubs-and-best-start-for-life/family-hubs/blackpool-family-hubs
 
-[Our three family hubs](/Residents/Education-and-schools/Early-years-and-childcare/Family-Hubs-and-Start-for-Life/Family-Hubs/Family-Hubs-timetable.aspx) have a varied timetable of free classes, events and activities on offer for local families so we can support you and your family, but also give your children the chance to make friends and learn as they play.
+Our three family hubs have a varied timetable of free classes, events and activities on offer for local families so we can support you and your family, but also give your children the chance to make friends and learn as they play.
 
 Whether it’s accessing an antenatal group, attending a health visitor appointment or a fun session for little ones, your local Family Hub has it all under one roof.
 
