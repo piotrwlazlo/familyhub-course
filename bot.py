@@ -127,12 +127,18 @@ def gather(queries: list[str]) -> list[dict]:
 
 
 def source_links(passages: list[dict], used: list[int]) -> str:
-    """Format a deduplicated list of source links for the passages referenced by the answer."""
+    """Format a deduplicated list of source links for the passages referenced by the answer.
+
+    Several pages can share one URL; the link keeps the title of the page the URL belongs to,
+    otherwise the title of the first passage with that URL.
+    """
     links = {}
     for number in used:
         if 1 <= number <= len(passages):
             page = passages[number - 1]
-            links[page["url"]] = f"- [{page['title']}]({page['url']})"
+            owns_url = page["page"] in page["url"].lower()
+            if page["url"] not in links or owns_url:
+                links[page["url"]] = f"- [{page['title']}]({page['url']})"
     return "\n\n**Sources:**\n" + "\n".join(links.values()) if links else ""
 
 
