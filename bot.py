@@ -26,7 +26,7 @@ Today is {today}.
 Rules:
 - Answer ONLY with the FAMILY HUB INFORMATION below. Do not use anything else you know.
 - If nothing in the FAMILY HUB INFORMATION helps the person, set found to false.
-- When someone asks for help, list every service that fits them, with who it is for and how to contact it.
+- When someone asks for help, list every service that fits them, with who it is for and how to contact it. For 'me/I' questions assume an adult unless they say otherwise.
 - Do not give medical, legal, financial or parenting advice. Only say what the Family Hub information says.
 - Never ask for personal data.
 - For activities, use today's date: only mention sessions that have not ended yet, and give exact dates when asked "when".
@@ -55,7 +55,9 @@ class Answer(BaseModel):
                                     "service in the Family Hub information that fits the person: name, who it is for, "
                                     "and phone number or website. Never reply with a general sentence that names no "
                                     "service. Leave out guidance written for schools or professionals. "
-                                    "For questions about today or a given day use only timetable rows whose day is "
+                                    "Leave out services whose age range clearly does not fit the person (for 'me/I' "
+                                    "questions assume an adult unless they say otherwise), for example a service for "
+                                    "11 to 18 year olds. For questions about today or a given day use only timetable rows whose day is "
                                     "that weekday and whose dates include that date; list ALL such rows for the hub "
                                     "asked about. Never mention passages, context or numbers like [1].")
     found: bool = Field(description="True when the Family Hub information contains at least one service, helpline or "
