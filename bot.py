@@ -74,9 +74,24 @@ def today() -> date:
     return config.TODAY or date.today()
 
 
+def sessions_on(day: date) -> str:
+    """List the timetable sessions running on the given day (weekday and date range), all hubs."""
+    rows = json.loads((config.KNOWLEDGE / "timetable.json").read_text(encoding="utf-8"))
+    lines = []
+    for row in rows:
+        start, end = date.fromisoformat(row["startDate"][:10]), date.fromisoformat(row["endDate"][:10])
+        if f"{day:%A}" in (row["day"] or []) and start <= day <= end:
+            lines.append(f"- {row['title']} | {row['entry']['venue']} | {row['familyHub']}")
+    return f"Sessions running today ({day:%A %d %B %Y}):\n" + ("\n".join(sorted(lines)) or "- none")
+
+
 def build_prompt(passages: list[dict], day: date, questions: list[str] | None = None) -> str:
-    """Build the system prompt: rules, current date, answer schema, numbered passages and the questions to answer."""
-    numbered = "\n\n".join(f"[{i}] {p['text']}" for i, p in enumerate(passages, start=1))
+    """Build the system prompt: rules, current date, answer schema, numbered passages and the questions to answer.
+
+    The timetable page starts with the list of today's sessions, worked out from the timetable data.
+    """
+    texts = [f"{sessions_on(day)}\n\n{p['text']}" if p["id"] in config.WHOLE_PAGES else p["text"] for p in passages]
+    numbered = "\n\n".join(f"[{i}] {text}" for i, text in enumerate(texts, start=1))
     prompt = RULES.format(today=f"{day:%A %d %B %Y}", timetable=config.HUBS_PAGE,
                           schema=json.dumps(Answer.model_json_schema()), passages=numbered)
     if questions and len(questions) > 1:
