@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 import config
 import logs
 from analysis import analyse
-from checks import check_answer, is_crisis
+from checks import check_answer, is_about_abuse, is_crisis
 from search import search
 
 client = OpenAI(base_url=config.MODEL_URL, api_key="not-needed")
@@ -163,18 +163,20 @@ def answer(question: str, history: list[dict] | None = None) -> str:
             logger.info("off-topic question: off-topic reply sent")
             return config.OFF_TOPIC_REPLY
         queries = form.search_queries[:3] or [question]
+        abuse = config.CRISIS_NARROW and is_about_abuse(question + " " + " ".join(queries))
         passages = gather(queries)
         result = write_answer(question, passages, history, queries)
         if result is None:
             logger.error("no answer from the model: fallback reply sent")
-            return config.FALLBACK_REPLY
+            return config.CRISIS_REPLY if abuse else config.FALLBACK_REPLY
         problem = check_answer(result, passages)
         if problem:
-            return problem                      # check_answer has logged which rule
+            return config.CRISIS_REPLY if abuse else problem   # check_answer has logged which rule
         logger.info("answered | kind={} | pages={} | {:.1f} s", form.kind,
                     [passages[n - 1]["page"] for n in result.sources if 1 <= n <= len(passages)],
                     time.perf_counter() - started)
-        return result.answer + source_links(passages, result.sources)
+        reply = result.answer + source_links(passages, result.sources)
+        return config.ABUSE_LINE + "\n\n" + reply if abuse else reply
 
 
 if __name__ == "__main__":

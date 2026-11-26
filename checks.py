@@ -8,6 +8,8 @@ import config
 # Phrases that trigger the fixed crisis reply
 CRISIS_WORDS = ["in danger", "not safe at home", "unsafe at home", "hurt myself", "kill myself", "suicide",
                 "hitting me", "hits me", "being abused", "abusing me", "going to hurt"]
+# With config.CRISIS_NARROW these go through normal search instead (answer starts with config.ABUSE_LINE)
+ABUSE_WORDS = ["abuse", "abusive", "abusing", "violent", "violence", "controlling", "coercive"]
 
 # UK phone numbers, e.g. 01253 476480, 0808 2000 247, 116 123
 PHONE = re.compile(r"\b(?:0\d{2,4}[ -]?\d{3,4}[ -]?\d{3,4}|116 ?\d{3})\b")
@@ -16,7 +18,16 @@ PHONE = re.compile(r"\b(?:0\d{2,4}[ -]?\d{3,4}[ -]?\d{3,4}|116 ?\d{3})\b")
 def is_crisis(question: str) -> bool:
     """True if the question contains one of the crisis words."""
     text = question.lower().replace("’", "'")
-    return any(word in text for word in CRISIS_WORDS)
+    words = CRISIS_WORDS
+    if config.CRISIS_NARROW:
+        words = [w for w in CRISIS_WORDS if w not in ("being abused", "abusing me")]
+    return any(word in text for word in words)
+
+
+def is_about_abuse(text: str) -> bool:
+    """True if the text mentions abuse or violence (used only with config.CRISIS_NARROW)."""
+    text = text.lower()
+    return any(word in text for word in ABUSE_WORDS)
 
 
 def digits(text: str) -> str:

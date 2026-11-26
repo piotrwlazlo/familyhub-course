@@ -29,6 +29,12 @@ OFF_TOPIC_REPLY = ("Sorry, I can only help with information from the Blackpool F
 CRISIS_REPLY = ("If you or someone else is in danger right now, call 999. "
                 "You can call the National Domestic Abuse Helpline free, day or night, on 0808 2000 247, "
                 "and Samaritans on 116 123.")
+# False: any message about abuse or harm gets CRISIS_REPLY.
+# True: only immediate danger gets CRISIS_REPLY; other messages about abuse get a normal answer
+# with local services, starting with ABUSE_LINE.
+CRISIS_NARROW = False
+ABUSE_LINE = ("**If you are in danger right now, call 999.** The National Domestic Abuse Helpline is free, "
+              "day or night, on 0808 2000 247.")
 FALLBACK_REPLY = ("Sorry, I can't answer that here. Please contact your local family hub "
                   f"([phone numbers and addresses]({HUBS_PAGE})).")
 
