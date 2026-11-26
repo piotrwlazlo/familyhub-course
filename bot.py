@@ -79,12 +79,14 @@ def today() -> date:
 def sessions_on(day: date) -> str:
     """List the timetable sessions running on the given day (weekday and date range), all hubs."""
     rows = json.loads((config.KNOWLEDGE / "timetable.json").read_text(encoding="utf-8"))
-    lines = []
+    by_venue = {}
     for row in rows:
         start, end = date.fromisoformat(row["startDate"][:10]), date.fromisoformat(row["endDate"][:10])
         if f"{day:%A}" in (row["day"] or []) and start <= day <= end:
-            lines.append(f"- {row['title']} | {row['entry']['venue']} | {row['familyHub']}")
-    return f"Sessions running today ({day:%A %d %B %Y}):\n" + ("\n".join(sorted(lines)) or "- none")
+            by_venue.setdefault(row["entry"]["venue"], []).append(f"- {row['title']}, {row['familyHub']}")
+    groups = [f"{venue} – only these sessions today:\n" + "\n".join(sorted(items))
+              for venue, items in sorted(by_venue.items())]
+    return f"Sessions running today ({day:%A %d %B %Y}), by venue:\n\n" + ("\n\n".join(groups) or "- none")
 
 
 def build_prompt(passages: list[dict], day: date, questions: list[str] | None = None) -> str:
