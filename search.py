@@ -41,7 +41,26 @@ def make_chunks(text: str, max_chars: int = config.CHUNK_CHARS) -> list[str]:
         current = (current + "\n\n" + block).strip()
     if current:
         chunks.append(current)
-    return chunks
+    return merge_short(chunks)
+
+
+def merge_short(chunks: list[str], min_chars: int = config.MIN_CHUNK_CHARS) -> list[str]:
+    """Join passages shorter than min_chars (e.g. a heading with one line) to the next passage of the page,
+    so a heading stays together with the list below it."""
+    merged, carry = [], ""
+    for chunk in chunks:
+        chunk = f"{carry}\n\n{chunk}" if carry else chunk
+        if len(chunk) < min_chars:
+            carry = chunk
+        else:
+            merged.append(chunk)
+            carry = ""
+    if carry:
+        if merged:
+            merged[-1] += "\n\n" + carry
+        else:
+            merged.append(carry)
+    return merged
 
 
 def build_index() -> None:

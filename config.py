@@ -12,6 +12,7 @@ KNOWLEDGE = HERE / "knowledge"
 # Retrieval settings (persistent Chroma index)
 INDEX_DIR = HERE / "index"
 CHUNK_CHARS = 1000     # maximum passage length in characters
+MIN_CHUNK_CHARS = 300  # shorter passages are joined to the next one
 TOP_K = 7              # passages retrieved for each question
 MAX_PASSAGES = {1: 7, 2: 14, 3: 20}   # passages passed to the model, by number of questions in the message
 # Pages returned in full when any of their passages is retrieved (large tables)
