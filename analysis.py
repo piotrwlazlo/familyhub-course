@@ -41,11 +41,13 @@ class QuestionAnalysis(BaseModel):
                     "council website in English. Usually one item. Split only when the message asks about "
                     "different things, for example 'I'm struggling with gambling and I'm in debt' -> "
                     "['gambling support', 'debt advice']. At most 3 items. Use the words the website uses for "
-                    "services and say who the help is for. Replace 'today' or 'tomorrow' with the weekday name. "
+                    "services and say who the help is for. Keep the service words (helplines, counselling, talking "
+                    "therapies, support groups) in the query; do not shorten it to a general phrase. "
+                    "Replace 'today' or 'tomorrow' with the weekday name. "
                     "Examples: 'my uncle just died' -> ['bereavement support counselling']; "
                     "'is there any therapy for me' -> ['talking therapies counselling for adults']; "
-                    "'I am an adult and need mental health support' -> ['mental health support for adults 16+ 18+ "
-                    "Mind Talking Therapies']; 'my partner is being abusive' -> ['domestic abuse support services']; "
+                    "'I am an adult and need mental health support' -> ['adult mental health support helplines "
+                    "counselling talking therapies']; 'my partner is being abusive' -> ['domestic abuse support services']; "
                     "'what is on today in north hub' -> ['North Family Hub timetable Wednesday'] "
                     "(when today is a Wednesday).")
 
