@@ -68,8 +68,9 @@ class Answer(BaseModel):
                                           "Numbers go only here, never in answer.")
     contains_advice: bool = Field(description="True if the answer gives medical, legal, financial or parenting "
                                               "advice that is not written in the Family Hub information.")
-    contains_personal_data: bool = Field(description="True if the answer contains personal data of a private "
-                                                     "person (public phone numbers and emails of services are fine).")
+    contains_personal_data: bool = Field(description="True only if the answer contains personal data of a member of "
+                                                     "the public, such as the user's own address. Contact details "
+                                                     "written in the Family Hub information are never personal data.")
 
 
 def today() -> date:
